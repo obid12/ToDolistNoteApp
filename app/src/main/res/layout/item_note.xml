@@ -7,7 +7,7 @@
 
         <variable
             name="dataEntity"
-            type="com.obidia.testagrii.data.entity.NoteEntity" />
+            type="com.obidia.testagrii.domain.model.NoteModel" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -36,12 +36,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="200"
-                    android:text="@{dataEntity.acktivitas}"
+                    android:text="@{dataEntity.activity}"
                     android:textColor="@color/black"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     tools:text="Title" />
-
 
             </LinearLayout>
 
@@ -51,7 +50,7 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="16dp"
                 android:layout_weight="200"
-                android:text="@{dataEntity.kategori}"
+                android:text="@{dataEntity.category}"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 tools:text="Kategory" />

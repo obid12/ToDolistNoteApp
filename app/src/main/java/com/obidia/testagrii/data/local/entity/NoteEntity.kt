@@ -1,0 +1,40 @@
+package com.obidia.testagrii.data.local.entity
+
+import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.utils.replaceIfNull
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+@Entity(tableName = "user_table")
+data class NoteEntity(
+  @PrimaryKey(autoGenerate = true) val id: Int,
+  val activity: String?,
+  val detail: String?,
+  val category: String?,
+  val isFinish: Boolean?
+) : Parcelable {
+  companion object {
+    fun transform(entity: List<NoteEntity>): ArrayList<NoteModel> = ArrayList(
+      entity.map {
+        NoteModel(
+          it.id.replaceIfNull(),
+          it.activity.replaceIfNull(),
+          it.detail.replaceIfNull(),
+          it.category.replaceIfNull(),
+          it.isFinish.replaceIfNull()
+        )
+      }
+    )
+
+    fun transform(model: NoteModel): NoteEntity = NoteEntity(
+      model.id,
+      model.activity,
+      model.detail,
+      model.category,
+      model.isFinish
+    )
+  }
+}

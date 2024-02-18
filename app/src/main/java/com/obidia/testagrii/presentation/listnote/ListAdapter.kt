@@ -3,72 +3,64 @@ package com.obidia.testagrii.presentation.listnote
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.obidia.testagrii.data.entity.NoteEntity
 import com.obidia.testagrii.databinding.ItemNoteBinding
+import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.presentation.listnote.ListAdapter.ListViewHolder
 
 
-class ListAdapter(private val onClick: OnClick) :
-    RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
+class ListAdapter : ListAdapter<NoteModel, ListViewHolder>(DiffCallBack) {
 
-    private val diffCallback = object : DiffUtil.ItemCallback<NoteEntity>() {
-        override fun areItemsTheSame(
-            oldItem: NoteEntity,
-            newItem: NoteEntity
-        ): Boolean =
-            oldItem.id == newItem.id
+  private var onClickItem: ((data: NoteModel) -> Unit)? = null
 
+  fun setOnClickItem(listener: ((data: NoteModel) -> Unit)?) {
+    onClickItem = listener
+  }
 
-        override fun areContentsTheSame(
-            oldItem: NoteEntity,
-            newItem: NoteEntity
-        ): Boolean =
-            oldItem.hashCode() == newItem.hashCode()
-
-
-    }
-
-    private val differ = AsyncListDiffer(this, diffCallback)
-    fun submitData(value: MutableList<NoteEntity>) = differ.submitList(value)
-
-    class ListViewHolder(private var binding: ItemNoteBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: NoteEntity) {
-            binding.dataEntity = data
-            if (data.selesai) {
-                binding.cardView.setBackgroundColor(Color.GREEN)
-                binding.selesai.setTextColor(Color.BLACK)
-                binding.selesai.text = "Telah Dikerjakan"
-            } else {
-                binding.cardView.setBackgroundColor(Color.WHITE)
-                binding.selesai.setTextColor(Color.parseColor("#FFBB86FC"))
-                binding.selesai.text = "Tandai Selesai"
-            }
-            binding.executePendingBindings()
+  inner class ListViewHolder(
+    private var binding: ItemNoteBinding
+  ) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(data: NoteModel) {
+      binding.run {
+        dataEntity = data
+        root.setOnClickListener {
+          onClickItem?.invoke(data)
         }
-    }
-
-    class OnClick(val click: (entity: NoteEntity?) -> Unit) {
-        fun onClick(entity: NoteEntity?) = click(entity)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
-        return ListViewHolder(
-            ItemNoteBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false
-            )
+        cardView.setBackgroundColor(if (data.isFinish) Color.GREEN else Color.WHITE)
+        selesai.setTextColor(
+          if (data.isFinish)Color.BLACK
+          else Color.parseColor("#FFBB86FC")
         )
+        selesai.text = if (data.isFinish) "Telah Dikerjakan" else "Tandai Selesai"
+        executePendingBindings()
+      }
     }
+  }
 
-    override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
-        val data = differ.currentList[position] as NoteEntity
-        holder.bind(data)
-        holder.itemView.setOnClickListener {
-            onClick.onClick(data)
-        }
-    }
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+    return ListViewHolder(
+      ItemNoteBinding.inflate(
+        LayoutInflater.from(parent.context), parent, false
+      )
+    )
+  }
 
-    override fun getItemCount(): Int = differ.currentList.size
+  override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
+    val data = getItem(position)
+    holder.bind(data)
+  }
+
+  object DiffCallBack : DiffUtil.ItemCallback<NoteModel>() {
+    override fun areItemsTheSame(
+      oldItem: NoteModel,
+      newItem: NoteModel
+    ): Boolean = oldItem.id == newItem.id
+
+    override fun areContentsTheSame(
+      oldItem: NoteModel,
+      newItem: NoteModel
+    ): Boolean = oldItem.hashCode() == newItem.hashCode()
+  }
 }

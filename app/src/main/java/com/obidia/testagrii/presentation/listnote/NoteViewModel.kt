@@ -1,53 +1,52 @@
 package com.obidia.testagrii.presentation.listnote
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.obidia.testagrii.data.database.NoteDatabase
-import com.obidia.testagrii.data.entity.NoteEntity
-import com.obidia.testagrii.data.repository.NoteRepository
+import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.domain.usecase.NoteUseCase
+import com.obidia.testagrii.utils.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class NoteViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class NoteViewModel @Inject constructor(
+  private val useCase: NoteUseCase
+) : ViewModel() {
+  private val _isFinish = MutableLiveData<Boolean>()
+  val isFinish get() = _isFinish
 
+  fun setFinish(data: Boolean) {
+    _isFinish.value = data
+  }
 
-    private val noteDao = NoteDatabase.getDatabase(application).noteDao()
-    private val repository = NoteRepository(noteDao)
-    val readAllData: LiveData<MutableList<NoteEntity>> = repository.readAllData
-    private val _selesai = MutableLiveData<Boolean>()
-    val selesai get() = _selesai
+  fun getAllNote(): Flow<Resource<ArrayList<NoteModel>>> = useCase.getAllNotes()
 
-    fun setSelesai(data: Boolean) {
-        _selesai.value = data
+  fun addNote(data: NoteModel) {
+    viewModelScope.launch(Dispatchers.IO) {
+      useCase.addNote(data)
     }
+  }
 
-
-
-    fun addUser(noteEntity: NoteEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.addUser(noteEntity)
-        }
+  fun updateUser(data: NoteModel) {
+    viewModelScope.launch(Dispatchers.IO) {
+      useCase.updateNote(data)
     }
+  }
 
-    fun updateUser(noteEntity: NoteEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.updateUser(noteEntity)
-        }
+  fun deleteNote(data: NoteModel) {
+    viewModelScope.launch(Dispatchers.IO) {
+      useCase.deleteNote(data)
     }
+  }
 
-    fun deleteUser(noteEntity: NoteEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteUser(noteEntity)
-        }
+  fun deleteAllUsers() {
+    viewModelScope.launch(Dispatchers.IO) {
+      useCase.deleteAllNotes()
     }
-
-    fun deleteAllUsers() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAllUsers()
-        }
-    }
+  }
 
 }

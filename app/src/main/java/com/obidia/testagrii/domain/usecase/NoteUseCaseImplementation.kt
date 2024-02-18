@@ -1,0 +1,35 @@
+package com.obidia.testagrii.domain.usecase
+
+import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.domain.repo.NoteRepository
+import com.obidia.testagrii.utils.Resource
+import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+
+class NoteUseCaseImplementation @Inject constructor(
+  private val repository: NoteRepository
+) : NoteUseCase {
+  override fun addNote(data: NoteModel) {
+    repository.addNote(data)
+  }
+
+  override fun updateNote(data: NoteModel) {
+    repository.updateNote(data)
+  }
+
+  override fun deleteNote(data: NoteModel) {
+    repository.deleteNote(data)
+  }
+
+  override fun deleteAllNotes() {
+    repository.deleteAllNotes()
+  }
+
+  override fun getAllNotes(): Flow<Resource<ArrayList<NoteModel>>> {
+    return repository.getAllNotes()
+  }
+
+  override fun getNoteByCategory(key: String): Flow<Resource<ArrayList<NoteModel>>> {
+    return repository.getNoteByCategory(key)
+  }
+}

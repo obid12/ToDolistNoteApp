@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -13,7 +14,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.obidia.testagrii.databinding.FragmentListNoteBinding
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.presentation.inputdata.InputDataFragment
-import com.obidia.testagrii.presentation.update.UpdateDataFragment
 import com.obidia.testagrii.utils.error
 import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.success
@@ -45,32 +45,50 @@ class ListNoteFragment : Fragment() {
 
   private fun setupObserver() {
     lifecycleScope.launch {
-      noteViewModel.getAllNote().flowWithLifecycle(lifecycle).catch {  }.collect { state ->
-        state.loading {  }
+      noteViewModel.getAllNote().flowWithLifecycle(lifecycle).catch { }.collect { state ->
+        state.loading { }
         state.success {
-          Log.d("KESINI", "$it")
+          Log.d("KESINI", "list $it")
           setupAdapter(it)
         }
-        state.error {  }
+        state.error { }
       }
     }
   }
 
   private fun setupFloatBtn() {
     binding.floatBtn.setOnClickListener {
-      val dialogFragment = InputDataFragment()
-      val fragmentManager = childFragmentManager
-      dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
+      gotoInputDialog()
     }
+  }
+
+  private fun gotoInputDialog(
+    data: NoteModel? = null,
+    isUpdateNote: Boolean = false
+  ) {
+    val dialogFragment = InputDataFragment.newInstance(
+      data,
+      isUpdateNote
+    )
+
+    val fragmentManager = childFragmentManager
+    dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
   }
 
   private fun setupAdapter(list: ArrayList<NoteModel>) {
     itemAdapter.run {
       submitList(list)
       setOnClickItem {
-        val dialogFragment = UpdateDataFragment(it)
-        val fragmentManager = childFragmentManager
-        dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
+        if (it.isFinish) {
+          Toast.makeText(requireContext(), "Task Finished!", Toast.LENGTH_SHORT).show()
+          return@setOnClickItem
+        }
+        gotoInputDialog(it, true)
+      }
+      setOnClickFinish {
+        noteViewModel.updateNote(it.apply {
+          this.isFinish = !it.isFinish
+        })
       }
     }
   }

@@ -1,8 +1,10 @@
 package com.obidia.testagrii.data.repository
 
 import com.obidia.testagrii.data.local.entity.NoteEntity
+import com.obidia.testagrii.data.local.entity.SubNoteEntity
 import com.obidia.testagrii.data.local.room.NoteDao
 import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.domain.model.SubNoteModel
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -36,5 +38,21 @@ class LocalDataSource @Inject constructor(
 
   fun getNoteByCategory(key: String): Flow<ArrayList<NoteModel>> = noteDao.getAllNotes().map {
     NoteEntity.transform(it)
+  }.flowOn(Dispatchers.IO)
+
+  fun addSubNote(data: SubNoteModel) {
+    noteDao.addSubNote(SubNoteEntity.transform(data))
+  }
+
+  fun updateSubNote(data: SubNoteModel) {
+    noteDao.updateSubNote(SubNoteEntity.transform(data))
+  }
+
+  fun deleteSubNote(data: SubNoteModel) {
+    noteDao.deleteSubNote(SubNoteEntity.transform(data))
+  }
+
+  fun getAllSubNotes(idNote: Int): Flow<ArrayList<SubNoteModel>> = noteDao.getAllSubNotes(idNote).map {
+    SubNoteEntity.transform(it)
   }.flowOn(Dispatchers.IO)
 }

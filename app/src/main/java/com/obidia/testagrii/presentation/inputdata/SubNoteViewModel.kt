@@ -1,8 +1,8 @@
-package com.obidia.testagrii.presentation.listnote
+package com.obidia.testagrii.presentation.inputdata
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.domain.usecase.NoteUseCase
 import com.obidia.testagrii.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,32 +12,27 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class NoteViewModel @Inject constructor(
+class SubNoteViewModel @Inject constructor(
   private val useCase: NoteUseCase
 ) : ViewModel() {
-  fun getAllNote(): Flow<Resource<ArrayList<NoteModel>>> = useCase.getAllNotes()
+  fun getAllSubNote(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>> =
+    useCase.getAllSubNotes(idNote)
 
-  fun addNote(data: NoteModel) {
+  fun addSubNote(data: SubNoteModel) {
     viewModelScope.launch(Dispatchers.IO) {
-      useCase.addNote(data)
+      useCase.addSubNote(data)
     }
   }
 
-  fun updateNote(data: NoteModel) {
+  fun updateSubNote(data: SubNoteModel) {
     viewModelScope.launch(Dispatchers.IO) {
-      useCase.updateNote(data)
+      useCase.updateSubNote(data)
     }
   }
 
-  fun deleteNote(data: NoteModel) {
+  fun deleteSubNote(data: SubNoteModel) {
     viewModelScope.launch(Dispatchers.IO) {
-      useCase.deleteNote(data)
-    }
-  }
-
-  fun deleteAllUsers() {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.deleteAllNotes()
+      useCase.deleteSubNote(data)
     }
   }
 }

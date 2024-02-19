@@ -1,5 +1,6 @@
 package com.obidia.testagrii.utils
 
+import android.view.View
 import com.obidia.testagrii.utils.Resource.Error
 import com.obidia.testagrii.utils.Resource.Loading
 import com.obidia.testagrii.utils.Resource.Success
@@ -40,4 +41,18 @@ fun String?.replaceIfNull(replace: String = ""): String {
 
 fun Int?.replaceIfNull(replace: Int = 0): Int {
   return this ?: replace
+}
+
+fun View.visible(isVisible: Boolean, isInVisible: Boolean = false) {
+  if (isVisible) {
+    this.visibility = View.VISIBLE
+    return
+  }
+
+  if (isInVisible) {
+    this.visibility = View.INVISIBLE
+    return
+  }
+
+  this.visibility = View.GONE
 }

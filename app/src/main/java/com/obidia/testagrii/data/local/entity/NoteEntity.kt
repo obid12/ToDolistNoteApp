@@ -8,7 +8,7 @@ import com.obidia.testagrii.utils.replaceIfNull
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity(tableName = "user_table")
+@Entity(tableName = "note_table")
 data class NoteEntity(
   @PrimaryKey(autoGenerate = true) val id: Int,
   val activity: String?,

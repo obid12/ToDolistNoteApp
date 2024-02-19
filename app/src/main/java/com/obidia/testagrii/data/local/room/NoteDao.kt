@@ -2,6 +2,7 @@ package com.obidia.testagrii.data.local.room
 
 import androidx.room.*
 import com.obidia.testagrii.data.local.entity.NoteEntity
+import com.obidia.testagrii.data.local.entity.SubNoteEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,12 +16,24 @@ interface NoteDao {
     @Delete
     fun deleteNote(data: NoteEntity)
 
-    @Query("DELETE FROM user_table")
+    @Query("DELETE FROM note_table")
     fun deleteAllNotes()
 
-    @Query("SELECT * FROM user_table ORDER BY id ASC")
+    @Query("SELECT * FROM note_table ORDER BY id ASC")
     fun getAllNotes(): Flow<List<NoteEntity>>
 
-    @Query("SELECT * FROM user_table where category = :key")
+    @Query("SELECT * FROM note_table where category = :key")
     fun getNoteByCategory(key: String): Flow<List<NoteEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addSubNote(data: SubNoteEntity)
+
+    @Update
+    fun updateSubNote(data: SubNoteEntity)
+
+    @Delete
+    fun deleteSubNote(data: SubNoteEntity)
+
+    @Query("SELECT * FROM sub_note_table where idNote = :idNote ORDER BY idSubNote ASC")
+    fun getAllSubNotes(idNote: Int): Flow<List<SubNoteEntity>>
 }

@@ -1,6 +1,7 @@
 package com.obidia.testagrii.data.repository
 
 import com.obidia.testagrii.domain.model.NoteModel
+import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.domain.repo.NoteRepository
 import com.obidia.testagrii.utils.Resource
 import com.obidia.testagrii.utils.Resource.Loading
@@ -43,6 +44,29 @@ class NoteRepositoryImplementation @Inject constructor(
   override fun getNoteByCategory(key: String): Flow<Resource<ArrayList<NoteModel>>> {
     return flow {
       val data = localDataSource.getNoteByCategory(key)
+      data.onStart { emit(Loading) }.catch {
+        emit(Resource.Error(it))
+      }.collect {
+        emit(Resource.Success(it))
+      }
+    }
+  }
+
+  override fun addSubNote(data: SubNoteModel) {
+    localDataSource.addSubNote(data)
+  }
+
+  override fun updateSubNote(data: SubNoteModel) {
+    localDataSource.updateSubNote(data)
+  }
+
+  override fun deleteSubNote(data: SubNoteModel) {
+    localDataSource.deleteSubNote(data)
+  }
+
+  override fun getAllSubNotes(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>> {
+    return flow {
+      val data = localDataSource.getAllSubNotes(idNote)
       data.onStart { emit(Loading) }.catch {
         emit(Resource.Error(it))
       }.collect {

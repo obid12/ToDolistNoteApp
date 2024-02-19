@@ -10,18 +10,18 @@ import com.obidia.testagrii.databinding.ItemNoteBinding
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.presentation.listnote.ListAdapter.ListViewHolder
 
-
 class ListAdapter : ListAdapter<NoteModel, ListViewHolder>(DiffCallBack) {
 
   private var onClickItem: ((data: NoteModel) -> Unit)? = null
-  private var onClickFinish: ((isFinish: Boolean) -> Unit)? = null
+  private var onClickFinish: ((data: NoteModel) -> Unit)? = null
 
   fun setOnClickItem(listener: ((data: NoteModel) -> Unit)?) {
     onClickItem = listener
   }
 
-  fun setOnClickFinish(listener: ((isFinish: Boolean) -> Unit)?) {
+  fun setOnClickFinish(listener: ((data: NoteModel) -> Unit)?) {
     onClickFinish = listener
+    notifyItemRangeChanged(0, itemCount)
   }
 
   inner class ListViewHolder(
@@ -36,7 +36,7 @@ class ListAdapter : ListAdapter<NoteModel, ListViewHolder>(DiffCallBack) {
         cardView.setBackgroundColor(if (data.isFinish) Color.GREEN else Color.WHITE)
         selesai.let {
           it.setOnClickListener {
-            onClickFinish?.invoke(data.isFinish)
+            onClickFinish?.invoke(data)
           }
           it.setTextColor(
             if (data.isFinish) Color.BLACK

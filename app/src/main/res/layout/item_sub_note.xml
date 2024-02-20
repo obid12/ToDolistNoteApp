@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,29 +10,40 @@
       android:id="@+id/btn_check_box"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:focusable="false"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
       />
 
-  <TextView
-      android:id="@+id/tv_sub_note"
-      android:layout_width="wrap_content"
+  <EditText
+      android:id="@+id/etNoteBody"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
+      android:background="@android:color/transparent"
+      android:hint="Type something..."
+      android:imeOptions="actionNone"
+      android:importantForAutofill="no"
+      android:inputType="text"
+      android:textColor="@color/black"
+      android:textColorHint="@color/hintColor"
       android:textSize="16sp"
       app:layout_constraintBottom_toBottomOf="@+id/btn_check_box"
+      app:layout_constraintEnd_toStartOf="@+id/iv_delete"
       app:layout_constraintStart_toEndOf="@+id/btn_check_box"
       app:layout_constraintTop_toTopOf="@+id/btn_check_box"
-      tools:text="item"
       />
 
   <ImageView
+      android:id="@+id/iv_delete"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:src="@drawable/ic_delete"
+      android:focusable="false"
       android:layout_marginEnd="16dp"
-      app:layout_constraintBottom_toBottomOf="@+id/tv_sub_note"
+      android:contentDescription="@string/app_name"
+      android:src="@drawable/ic_delete"
+      app:layout_constraintBottom_toBottomOf="@+id/etNoteBody"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="@+id/tv_sub_note"
+      app:layout_constraintTop_toTopOf="@+id/etNoteBody"
       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,115 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="32dp"
-    android:background="@color/white"
-    app:cardCornerRadius="5dp"
-    app:cardElevation="8dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    tools:context=".presentation.inputdata.InputDataFragment"
+    android:layout_height="match_parent"
     >
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+  <EditText
+      android:id="@+id/etNoteTitle"
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      >
+      android:layout_height="wrap_content"
+      android:layout_marginHorizontal="16dp"
+      android:layout_marginTop="16dp"
+      android:background="@android:color/transparent"
+      android:hint="Type your Activity"
+      android:importantForAutofill="no"
+      android:inputType="text"
+      android:textColor="@color/black"
+      android:textColorHint="@color/black"
+      android:textSize="20sp"
+      android:textStyle="bold"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/floatBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rv_sub_note"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/etNoteTitle"
+      tools:itemCount="3"
+      tools:listitem="@layout/item_sub_note"
+      />
 
-      <EditText
-          android:id="@+id/etNoteTitle"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:background="@android:color/transparent"
-          android:ems="10"
-          android:hint="Type your Activity"
-          android:inputType="text"
-          android:textColor="@color/black"
-          android:textColorHint="@color/black"
-          android:textSize="20sp"
-          android:textStyle="bold"
-          />
+  <EditText
+      android:id="@+id/etNoteBody"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginHorizontal="16dp"
+      android:layout_marginTop="4dp"
+      android:background="@android:color/transparent"
+      android:hint="Type something..."
+      android:imeOptions="actionNone"
+      android:importantForAutofill="no"
+      android:inputType="text"
+      android:textColor="@color/black"
+      android:textColorHint="@color/hintColor"
+      android:textSize="16sp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/rv_sub_note"
+      />
 
-      <EditText
-          android:id="@+id/etKategory"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="8dp"
-          android:background="@android:color/transparent"
-          android:ems="10"
-          android:hint="Type your Category"
-          android:inputType="text"
-          android:textColor="@color/black"
-          android:textColorHint="@color/black"
-          android:textSize="16sp"
-          />
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/floatBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="16dp"
+      android:focusable="false"
+      android:layout_marginBottom="16dp"
+      android:contentDescription="@string/app_name"
+      android:src="@drawable/ic_add"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      />
 
-      <androidx.recyclerview.widget.RecyclerView
-          android:id="@+id/rv_sub_note"
-          android:layout_marginTop="20dp"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          tools:listitem="@layout/item_sub_note"
-          tools:itemCount="3"/>
+  <TextView
+      android:id="@+id/tv_update_note"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="end"
+      android:focusable="false"
+      android:layout_marginStart="16dp"
+      android:text="Update Note"
+      android:textColor="@color/purple_200"
+      android:textStyle="bold"
+      app:layout_constraintBottom_toBottomOf="@+id/floatBtn"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/floatBtn"
+      />
 
-      <EditText
-          android:id="@+id/etNoteBody"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="4dp"
-          android:background="@android:color/transparent"
-          android:ems="10"
-          android:inputType="text"
-          android:gravity="start|top"
-          android:hint="Type something..."
-          android:textColor="@color/black"
-          android:textColorHint="@color/hintColor"
-          android:textSize="16sp"
-          />
-
-    </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_add"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
-
-    <TextView
-        android:id="@+id/tv_update_note"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginStart="16dp"
-        android:text="Update Note"
-        android:textColor="@color/purple_200"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/floatBtn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/floatBtn"
-        />
-
-  </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,18 +1,21 @@
 package com.obidia.testagrii.presentation.inputdata
 
+import android.app.Dialog
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.obidia.testagrii.BuildConfig
 import com.obidia.testagrii.R
 import com.obidia.testagrii.databinding.FragmentInputDataBinding
@@ -26,11 +29,10 @@ import com.obidia.testagrii.utils.success
 import com.obidia.testagrii.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class InputDataFragment : DialogFragment() {
+class InputDataFragment : BottomSheetDialogFragment() {
 
   private val noteViewModel: NoteViewModel by viewModels()
   private val subNoteViewModel: SubNoteViewModel by viewModels()
@@ -39,6 +41,31 @@ class InputDataFragment : DialogFragment() {
   private var noteModel: NoteModel? = null
   private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
   private val binding get() = _binding!!
+
+  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    val dialog = BottomSheetDialog(requireContext(), theme)
+    dialog.setShowDialog()
+    return dialog
+  }
+
+  private fun BottomSheetDialog.setShowDialog() {
+    this.setOnShowListener {
+      val bottomSheetDialog = it as BottomSheetDialog
+      val parentLayout =
+        bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+      parentLayout?.let { parent ->
+        val behaviour = BottomSheetBehavior.from(parent)
+        setupFullHeight(parent)
+        behaviour.state = BottomSheetBehavior.STATE_EXPANDED
+      }
+    }
+  }
+
+  private fun setupFullHeight(bottomSheet: View) {
+    val layoutParams = bottomSheet.layoutParams
+    layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT
+    bottomSheet.layoutParams = layoutParams
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -53,7 +80,6 @@ class InputDataFragment : DialogFragment() {
 
   private fun setupObserver() {
     lifecycleScope.launch {
-      Log.d("KESINI", "id note ${noteModel?.id}")
       subNoteViewModel.getAllSubNote(noteModel?.id.replaceIfNull()).catch { }.collect { state ->
         state.loading { }
         state.success {
@@ -95,8 +121,9 @@ class InputDataFragment : DialogFragment() {
   }
 
   private fun setupInputSubNote() {
-    binding.etNoteBody.setOnEditorActionListener { v, actionId, _ ->
-      if (actionId == EditorInfo.IME_ACTION_DONE) {
+    binding.etNoteBody.setOnEditorActionListener { v, actionId, event ->
+      if (actionId == 0) {
+
         val data = SubNoteModel(
           0,
           if (isUpdateNote) noteModel?.id.replaceIfNull() else 0,
@@ -104,6 +131,7 @@ class InputDataFragment : DialogFragment() {
           isFinished = false
         )
         v.text = ""
+
         subNoteViewModel.addSubNote(data)
       }
       false
@@ -113,6 +141,14 @@ class InputDataFragment : DialogFragment() {
   private fun setupAdapter(list: ArrayList<SubNoteModel>) {
     subNoteAdapter.run {
       submitList(list)
+      setOnDeleteListener {
+        subNoteViewModel.deleteSubNote(it)
+      }
+      setOnUpdateListener { item, text ->
+        subNoteViewModel.updateSubNote(item.apply {
+          this.text = text
+        })
+      }
     }
   }
 
@@ -126,7 +162,6 @@ class InputDataFragment : DialogFragment() {
   private fun adjustViewInput() {
     binding.run {
       etNoteTitle.setText(if (isUpdateNote) noteModel?.activity else "")
-      etKategory.setText(if (isUpdateNote) noteModel?.category else "")
       tvUpdateNote.let {
         it.visible(isUpdateNote)
         it.setOnClickListener {
@@ -138,29 +173,18 @@ class InputDataFragment : DialogFragment() {
 
   private fun insertDataToDatabase() {
     val title = binding.etNoteTitle.text.toString()
-    val category = binding.etKategory.text.toString()
+    val note = NoteModel(
+      if (isUpdateNote) noteModel?.id.replaceIfNull() else 0,
+      title,
+      "",
+      "",
+      false
+    )
+    Toast.makeText(requireContext(), "Successfully added!", Toast.LENGTH_SHORT).show()
+    dialog?.dismiss()
 
-    if (inputCheck(title, category)) {
-      val note = NoteModel(
-        if (isUpdateNote) noteModel?.id.replaceIfNull() else 0,
-        title,
-        "",
-        category,
-        false
-      )
-      Toast.makeText(requireContext(), "Successfully added!", Toast.LENGTH_SHORT).show()
-      dialog?.dismiss()
-
-      if (isUpdateNote) noteViewModel.updateNote(note)
-      else noteViewModel.addNote(note)
-      return
-    }
-
-    Toast.makeText(requireContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show()
-  }
-
-  private fun inputCheck(firstName: String, category: String): Boolean {
-    return !(TextUtils.isEmpty(firstName) && TextUtils.isEmpty(category))
+    if (isUpdateNote) noteViewModel.updateNote(note)
+    else noteViewModel.addNote(note)
   }
 
   companion object {

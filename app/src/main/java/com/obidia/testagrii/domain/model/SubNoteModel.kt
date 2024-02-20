@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class SubNoteModel(
   val idSubNote: Int,
   val idNote: Int,
-  val text: String,
+  var text: String,
   val isFinished: Boolean
 ) : Parcelable

@@ -36,5 +36,13 @@ data class NoteEntity(
       model.category,
       model.isFinish
     )
+
+    fun transform(model: NoteEntity): NoteModel = NoteModel(
+      model.id,
+      model.activity.replaceIfNull(),
+      model.detail.replaceIfNull(),
+      model.category.replaceIfNull(),
+      model.isFinish.replaceIfNull()
+    )
   }
 }

@@ -1,5 +1,6 @@
 package com.obidia.testagrii.domain.usecase
 
+import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.domain.repo.NoteRepository
@@ -26,12 +27,8 @@ class NoteUseCaseImplementation @Inject constructor(
     repository.deleteAllNotes()
   }
 
-  override fun getAllNotes(): Flow<Resource<ArrayList<NoteModel>>> {
+  override fun getAllNotes(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>> {
     return repository.getAllNotes()
-  }
-
-  override fun getNoteByCategory(key: String): Flow<Resource<ArrayList<NoteModel>>> {
-    return repository.getNoteByCategory(key)
   }
 
   override fun addSubNote(data: SubNoteModel) {
@@ -48,5 +45,15 @@ class NoteUseCaseImplementation @Inject constructor(
 
   override fun getAllSubNotes(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>> {
     return repository.getAllSubNotes(idNote)
+  }
+
+  override fun updateSomeSubNote(idNote: Int) {
+    repository.updateSomeSubNote(idNote)
+  }
+
+  override fun getLatestNote(): Int = repository.getLatestNote()
+
+  override fun deleteNoteById(noteId: Int) {
+    repository.deleteNoteById(noteId)
   }
 }

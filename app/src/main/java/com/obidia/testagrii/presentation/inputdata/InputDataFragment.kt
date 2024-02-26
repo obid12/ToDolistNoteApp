@@ -1,32 +1,28 @@
 package com.obidia.testagrii.presentation.inputdata
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.view.inputmethod.EditorInfo
-import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.obidia.testagrii.BuildConfig
-import com.obidia.testagrii.R
 import com.obidia.testagrii.databinding.FragmentInputDataBinding
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
-import com.obidia.testagrii.presentation.listnote.NoteViewModel
 import com.obidia.testagrii.utils.error
 import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.replaceIfNull
 import com.obidia.testagrii.utils.success
-import com.obidia.testagrii.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -34,18 +30,26 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class InputDataFragment : BottomSheetDialogFragment() {
 
-  private val noteViewModel: NoteViewModel by viewModels()
   private val subNoteViewModel: SubNoteViewModel by viewModels()
   private var _binding: FragmentInputDataBinding? = null
   private var isUpdateNote: Boolean = false
   private var noteModel: NoteModel? = null
   private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
+  private var listSubNote: ArrayList<SubNoteModel> = arrayListOf()
+  private var title: String = ""
+  private var idNote: Int = 0
   private val binding get() = _binding!!
+  private var onDisMissListener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? =
+    null
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val dialog = BottomSheetDialog(requireContext(), theme)
     dialog.setShowDialog()
     return dialog
+  }
+
+  fun setOnDisMissListener(listener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? = null) {
+    onDisMissListener = listener
   }
 
   private fun BottomSheetDialog.setShowDialog() {
@@ -73,38 +77,56 @@ class InputDataFragment : BottomSheetDialogFragment() {
   ): View {
     _binding = FragmentInputDataBinding.inflate(inflater, container, false)
     loadArguments()
+    setIsUpdate()
     setupObserver()
     setupView()
     return binding.root
   }
 
+  private fun setIsUpdate() {
+    subNoteViewModel.setIsUpdate(isUpdateNote, noteModel?.id.replaceIfNull())
+  }
+
+  override fun onDismiss(dialog: DialogInterface) {
+    super.onDismiss(dialog)
+    title = binding.etNoteTitle.text.toString()
+    onDisMissListener?.invoke(listSubNote, getNoteId(), title)
+  }
+
   private fun setupObserver() {
+    getNoteIdObserver()
+    getListNoteObserver()
+  }
+
+  private fun getNoteIdObserver() {
+    subNoteViewModel.getNoteId()
     lifecycleScope.launch {
-      subNoteViewModel.getAllSubNote(noteModel?.id.replaceIfNull()).catch { }.collect { state ->
+      subNoteViewModel.idNote.flowWithLifecycle(lifecycle).catch { }
+        .collect {
+          idNote = it.replaceIfNull()
+        }
+    }
+  }
+
+  private fun getNoteId(): Int {
+    return if (isUpdateNote) noteModel?.id.replaceIfNull()
+    else idNote
+  }
+
+  private fun getListNoteObserver() {
+    subNoteViewModel.getAllSubNote()
+    lifecycleScope.launch {
+      subNoteViewModel.listSUbNote.flowWithLifecycle(lifecycle).catch { }.collect { state ->
         state.loading { }
         state.success {
+          listSubNote.run {
+            this.clear()
+            this.addAll(it)
+          }
           setupAdapter(it)
         }
         state.error { }
       }
-    }
-  }
-
-  private fun setupFloatButton() {
-    binding.floatBtn.run {
-      setOnClickListener {
-        if (isUpdateNote) {
-          noteModel?.let { data -> noteViewModel.deleteNote(data) }
-          dismiss()
-        } else insertDataToDatabase()
-      }
-      setImageDrawable(
-        AppCompatResources.getDrawable(
-          requireContext(),
-          if (isUpdateNote) R.drawable.ic_delete
-          else R.drawable.ic_add
-        )
-      )
     }
   }
 
@@ -117,22 +139,13 @@ class InputDataFragment : BottomSheetDialogFragment() {
     setupRecycleView()
     adjustViewInput()
     setupInputSubNote()
-    setupFloatButton()
   }
 
   private fun setupInputSubNote() {
-    binding.etNoteBody.setOnEditorActionListener { v, actionId, event ->
+    binding.etNoteBody.setOnEditorActionListener { v, actionId, _ ->
       if (actionId == 0) {
-
-        val data = SubNoteModel(
-          0,
-          if (isUpdateNote) noteModel?.id.replaceIfNull() else 0,
-          v.text.toString(),
-          isFinished = false
-        )
+        subNoteViewModel.addSubNote(v.text.toString())
         v.text = ""
-
-        subNoteViewModel.addSubNote(data)
       }
       false
     }
@@ -143,11 +156,6 @@ class InputDataFragment : BottomSheetDialogFragment() {
       submitList(list)
       setOnDeleteListener {
         subNoteViewModel.deleteSubNote(it)
-      }
-      setOnUpdateListener { item, text ->
-        subNoteViewModel.updateSubNote(item.apply {
-          this.text = text
-        })
       }
     }
   }
@@ -160,31 +168,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun adjustViewInput() {
-    binding.run {
-      etNoteTitle.setText(if (isUpdateNote) noteModel?.activity else "")
-      tvUpdateNote.let {
-        it.visible(isUpdateNote)
-        it.setOnClickListener {
-          insertDataToDatabase()
-        }
-      }
-    }
-  }
-
-  private fun insertDataToDatabase() {
-    val title = binding.etNoteTitle.text.toString()
-    val note = NoteModel(
-      if (isUpdateNote) noteModel?.id.replaceIfNull() else 0,
-      title,
-      "",
-      "",
-      false
-    )
-    Toast.makeText(requireContext(), "Successfully added!", Toast.LENGTH_SHORT).show()
-    dialog?.dismiss()
-
-    if (isUpdateNote) noteViewModel.updateNote(note)
-    else noteViewModel.addNote(note)
+    binding.etNoteTitle.setText(if (isUpdateNote) noteModel?.activity else "")
   }
 
   companion object {

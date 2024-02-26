@@ -12,6 +12,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.obidia.testagrii.databinding.FragmentListNoteBinding
+import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.presentation.inputdata.InputDataFragment
 import com.obidia.testagrii.utils.error
@@ -26,7 +27,7 @@ class ListNoteFragment : Fragment() {
 
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()
-  private val itemAdapter: ListAdapter = ListAdapter()
+  private val itemAdapter: ListAdapter = ListAdapter(true)
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +49,6 @@ class ListNoteFragment : Fragment() {
       noteViewModel.getAllNote().flowWithLifecycle(lifecycle).catch { }.collect { state ->
         state.loading { }
         state.success {
-          Log.d("KESINI", "list $it")
           setupAdapter(it)
         }
         state.error { }
@@ -58,6 +58,7 @@ class ListNoteFragment : Fragment() {
 
   private fun setupFloatBtn() {
     binding.floatBtn.setOnClickListener {
+      noteViewModel.addNote(NoteModel(0, "", "", "", false))
       gotoInputDialog()
     }
   }
@@ -69,26 +70,27 @@ class ListNoteFragment : Fragment() {
     val dialogFragment = InputDataFragment.newInstance(
       data,
       isUpdateNote
-    )
+    ).also {
+      it.setOnDisMissListener { list, id, title ->
+        Log.d("kesini", "kesini yoo $id")
+        if (title.isEmpty() && list.isEmpty()) {
+          noteViewModel.deleteNoteById(id)
+          return@setOnDisMissListener
+        }
+
+        noteViewModel.updateNote(title, id)
+      }
+    }
 
     val fragmentManager = childFragmentManager
     dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
   }
 
-  private fun setupAdapter(list: ArrayList<NoteModel>) {
+  private fun setupAdapter(list: ArrayList<NoteAndSubNoteModel>) {
     itemAdapter.run {
       submitList(list)
       setOnClickItem {
-        if (it.isFinish) {
-          Toast.makeText(requireContext(), "Task Finished!", Toast.LENGTH_SHORT).show()
-          return@setOnClickItem
-        }
-        gotoInputDialog(it, true)
-      }
-      setOnClickFinish {
-        noteViewModel.updateNote(it.apply {
-          this.isFinish = !it.isFinish
-        })
+        gotoInputDialog(it.noteEntity, true)
       }
     }
   }

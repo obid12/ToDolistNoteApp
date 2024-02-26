@@ -1,8 +1,10 @@
 package com.obidia.testagrii.data.repository
 
 import com.obidia.testagrii.data.local.entity.NoteEntity
+import com.obidia.testagrii.data.local.entity.NoteEntityAndSubEntity
 import com.obidia.testagrii.data.local.entity.SubNoteEntity
 import com.obidia.testagrii.data.local.room.NoteDao
+import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
 import javax.inject.Inject
@@ -32,12 +34,8 @@ class LocalDataSource @Inject constructor(
     noteDao.deleteAllNotes()
   }
 
-  fun getAllNotes(): Flow<ArrayList<NoteModel>> = noteDao.getAllNotes().map {
-    NoteEntity.transform(it)
-  }.flowOn(Dispatchers.IO)
-
-  fun getNoteByCategory(key: String): Flow<ArrayList<NoteModel>> = noteDao.getAllNotes().map {
-    NoteEntity.transform(it)
+  fun getAllNotes(): Flow<ArrayList<NoteAndSubNoteModel>> = noteDao.getAllNotes().map {
+    NoteEntityAndSubEntity.transform(it)
   }.flowOn(Dispatchers.IO)
 
   fun addSubNote(data: SubNoteModel) {
@@ -52,7 +50,20 @@ class LocalDataSource @Inject constructor(
     noteDao.deleteSubNote(SubNoteEntity.transform(data))
   }
 
-  fun getAllSubNotes(idNote: Int): Flow<ArrayList<SubNoteModel>> = noteDao.getAllSubNotes(idNote).map {
-    SubNoteEntity.transform(it)
-  }.flowOn(Dispatchers.IO)
+  fun getAllSubNotes(idNote: Int): Flow<ArrayList<SubNoteModel>> =
+    noteDao.getAllSubNotes(idNote).map {
+      SubNoteEntity.transform(it)
+    }.flowOn(Dispatchers.IO)
+
+  fun updateSomeSubNote(idNote: Int) {
+    noteDao.updateSomeSubsNotes(idNote)
+  }
+
+  fun getLatestNote(): Int {
+    return noteDao.getLatestNote()
+  }
+
+  fun deleteNoteById(idNote: Int) {
+    noteDao.deleteNoteById(idNote)
+  }
 }

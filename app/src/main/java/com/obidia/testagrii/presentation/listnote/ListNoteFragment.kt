@@ -26,6 +26,7 @@ class ListNoteFragment : Fragment() {
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()
   private val itemAdapter: ListAdapter = ListAdapter(true)
+  private var isBottomSheetShowing = false
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -70,6 +71,8 @@ class ListNoteFragment : Fragment() {
       isUpdateNote
     ).also {
       it.setOnDisMissListener { list, id, title ->
+        isBottomSheetShowing = false
+
         if (title.isEmpty() && list.isEmpty()) {
           noteViewModel.deleteNoteById(id)
           return@setOnDisMissListener
@@ -87,6 +90,9 @@ class ListNoteFragment : Fragment() {
     itemAdapter.run {
       submitList(list)
       setOnClickItem {
+        if (isBottomSheetShowing) return@setOnClickItem
+
+        isBottomSheetShowing = true
         gotoInputDialog(it.noteEntity, true)
       }
     }

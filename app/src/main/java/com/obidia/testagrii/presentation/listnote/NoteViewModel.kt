@@ -1,11 +1,9 @@
 package com.obidia.testagrii.presentation.listnote
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
 import com.obidia.testagrii.domain.model.NoteModel
-import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.domain.usecase.NoteUseCase
 import com.obidia.testagrii.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +32,6 @@ class NoteViewModel @Inject constructor(
 
   fun updateNote(title: String, idNote: Int) {
     viewModelScope.launch(Dispatchers.IO) {
-      Log.d("kesini","update $idNote")
       useCase.updateNote(
         NoteModel(
           idNote,

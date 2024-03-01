@@ -1,7 +1,6 @@
 package com.obidia.testagrii.presentation.listnote
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -18,18 +17,9 @@ class ListAdapter(val isListUser: Boolean = false) :
   ListAdapter<NoteAndSubNoteModel, ListViewHolder>(DiffCallBack) {
 
   private var onClickItem: ((data: NoteAndSubNoteModel) -> Unit)? = null
-  private var onClickFinish: ((data: NoteAndSubNoteModel, position: Int) -> Unit)? = null
 
   fun setOnClickItem(listener: ((data: NoteAndSubNoteModel) -> Unit)?) {
     onClickItem = listener
-  }
-
-  fun setOnClickFinish(listener: ((data: NoteAndSubNoteModel, position: Int) -> Unit)?) {
-    onClickFinish = listener
-  }
-
-  fun updateItem(position: Int) {
-    notifyItemChanged(position, Color.GREEN)
   }
 
   inner class ListViewHolder(
@@ -42,13 +32,17 @@ class ListAdapter(val isListUser: Boolean = false) :
     fun bind(data: NoteAndSubNoteModel) {
       binding.run {
         dataEntity = data
-        cardView.setOnClickListener {
-          onClickItem?.invoke(data)
-        }
         rvSubNote.let {
           it.adapter = subNoteAdapter
           it.layoutManager = LinearLayoutManager(getContext())
           it.onTouchListener()
+        }
+        cardView.setOnLongClickListener {
+          cardView.isChecked = !cardView.isChecked
+          true
+        }
+        cardView.setOnClickListener {
+          onClickItem?.invoke(data)
         }
         subNoteAdapter.submitList(data.listSubNoteEntity)
         binding.rvSubNote
@@ -59,12 +53,11 @@ class ListAdapter(val isListUser: Boolean = false) :
     private fun RecyclerView.onTouchListener() {
       this.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-          if (e.action == MotionEvent.ACTION_DOWN) {
-            binding.cardView.performClick()
-          }
-          return false
+          return true
         }
-        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
+          binding.cardView.onTouchEvent(e)
+        }
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
       })
     }

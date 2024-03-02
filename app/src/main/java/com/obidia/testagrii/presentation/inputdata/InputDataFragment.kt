@@ -38,6 +38,8 @@ class InputDataFragment : BottomSheetDialogFragment() {
   private var listSubNote: ArrayList<SubNoteModel> = arrayListOf()
   private var title: String = ""
   private var idNote: Int = 0
+  private var idSubNote: Int = 0
+  private var textSubNote: String = ""
   private val binding get() = _binding!!
   private var onDisMissListener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? =
     null
@@ -90,6 +92,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
   override fun onDismiss(dialog: DialogInterface) {
     super.onDismiss(dialog)
     title = binding.etNoteTitle.text.toString()
+    subNoteViewModel.updateSubNote(textSubNote, idSubNote)
     onDisMissListener?.invoke(listSubNote, getNoteId(), title)
   }
 
@@ -156,6 +159,15 @@ class InputDataFragment : BottomSheetDialogFragment() {
       submitList(list)
       setOnDeleteListener {
         subNoteViewModel.deleteSubNote(it)
+      }
+      setOnUpdateListener { item, text, isHasFocus ->
+        if (isHasFocus) {
+          idSubNote = item.idSubNote
+          textSubNote = text
+          return@setOnUpdateListener
+        }
+
+        subNoteViewModel.updateSubNote(text, item.idSubNote)
       }
     }
   }

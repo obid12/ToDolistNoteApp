@@ -32,7 +32,7 @@ NoteDao {
   fun addSubNote(data: SubNoteEntity)
 
   @Update
-  fun updateSubNote(data: SubNoteEntity)
+  fun updateSubNote(list: SubNoteEntity)
 
   @Delete
   fun deleteSubNote(data: SubNoteEntity)

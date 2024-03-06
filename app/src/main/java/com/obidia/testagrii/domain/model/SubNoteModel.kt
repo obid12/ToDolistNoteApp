@@ -8,5 +8,5 @@ data class SubNoteModel(
   val idSubNote: Int,
   var idNote: Int,
   var text: String,
-  val isFinished: Boolean
+  var isFinished: Boolean
 ) : Parcelable

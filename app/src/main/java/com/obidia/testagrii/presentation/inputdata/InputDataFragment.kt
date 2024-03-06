@@ -41,6 +41,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
   private var idSubNote: Int = 0
   private var textSubNote: String = ""
   private val binding get() = _binding!!
+  private val listUpdate: ArrayList<SubNoteModel> = arrayListOf()
   private var onDisMissListener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? =
     null
 
@@ -91,8 +92,13 @@ class InputDataFragment : BottomSheetDialogFragment() {
 
   override fun onDismiss(dialog: DialogInterface) {
     super.onDismiss(dialog)
+    Log.d("kesini", "yaa")
     title = binding.etNoteTitle.text.toString()
-    subNoteViewModel.updateSubNote(textSubNote, idSubNote)
+    setText(text = textSubNote, idSubNote = idSubNote)
+    Log.d("kesini", listUpdate.toString())
+    listUpdate.forEach {
+      subNoteViewModel.updateSubNote(it)
+    }
     onDisMissListener?.invoke(listSubNote, getNoteId(), title)
   }
 
@@ -166,9 +172,48 @@ class InputDataFragment : BottomSheetDialogFragment() {
           textSubNote = text
           return@setOnUpdateListener
         }
-
-        subNoteViewModel.updateSubNote(text, item.idSubNote)
       }
+      setOnCheckBoxListener { item, position ->
+        subNoteAdapter.updateItem(position)
+        val listFilter = listUpdate.filter {
+          it.idSubNote == item.idSubNote
+        }
+
+        if (listFilter.isEmpty()) {
+          listUpdate.add(item)
+          Log.d("kesini", listUpdate.toString())
+          return@setOnCheckBoxListener
+        }
+
+        val index = listUpdate.indexOfFirst {
+          it.idSubNote == item.idSubNote
+        }
+
+        listUpdate[index].apply {
+          this.isFinished = item.isFinished
+        }
+      }
+    }
+  }
+
+  private fun setText(text: String, item: SubNoteModel? = null, idSubNote: Int = 0) {
+    if (text.isEmpty()) return
+
+    val listFilter = listUpdate.filter {
+      it.idSubNote == if (idSubNote == 0) idSubNote else item?.idSubNote
+    }
+
+    if (listFilter.isEmpty()) {
+      item?.let { listUpdate.add(it) }
+      return
+    }
+
+    val index = listUpdate.indexOfFirst {
+      it.idSubNote == if (idSubNote == 0) idSubNote else item?.idSubNote
+    }
+
+    listUpdate[index].apply {
+      this.text = text
     }
   }
 

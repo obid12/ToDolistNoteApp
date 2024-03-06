@@ -37,12 +37,18 @@ class ListAdapter(val isListUser: Boolean = false) :
           it.layoutManager = LinearLayoutManager(getContext())
           it.onTouchListener()
         }
-        cardView.setOnLongClickListener {
-          cardView.isChecked = !cardView.isChecked
-          true
-        }
-        cardView.setOnClickListener {
-          onClickItem?.invoke(data)
+        cardView.let { card ->
+          card.setOnLongClickListener {
+            cardView.isChecked = !cardView.isChecked
+            true
+          }
+          card.setOnClickListener {
+            if (card.isChecked) {
+              card.isChecked = !card.isChecked
+              return@setOnClickListener
+            }
+            onClickItem?.invoke(data)
+          }
         }
         subNoteAdapter.submitList(data.listSubNoteEntity)
         binding.rvSubNote

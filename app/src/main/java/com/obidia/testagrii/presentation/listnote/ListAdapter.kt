@@ -10,10 +10,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.obidia.testagrii.databinding.ItemNoteBinding
 import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
-import com.obidia.testagrii.presentation.inputdata.ListSubNotesAdapter
 import com.obidia.testagrii.presentation.listnote.ListAdapter.ListViewHolder
 
-class ListAdapter(val isListUser: Boolean = false) :
+class ListAdapter :
   ListAdapter<NoteAndSubNoteModel, ListViewHolder>(DiffCallBack) {
 
   private var onClickItem: ((data: NoteAndSubNoteModel) -> Unit)? = null
@@ -26,7 +25,7 @@ class ListAdapter(val isListUser: Boolean = false) :
     private var binding: ItemNoteBinding
   ) : RecyclerView.ViewHolder(binding.root) {
 
-    private val subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter(isListUser)
+    private val subNoteAdapter: ListSubNoteAdapter = ListSubNoteAdapter()
     private fun getContext(): Context = itemView.context
 
     fun bind(data: NoteAndSubNoteModel) {
@@ -61,9 +60,11 @@ class ListAdapter(val isListUser: Boolean = false) :
         override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
           return true
         }
+
         override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
           binding.cardView.onTouchEvent(e)
         }
+
         override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
       })
     }

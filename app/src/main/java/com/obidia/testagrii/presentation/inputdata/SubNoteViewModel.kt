@@ -2,7 +2,6 @@ package com.obidia.testagrii.presentation.inputdata
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.obidia.testagrii.data.local.entity.SubNoteEntity
 import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.domain.usecase.NoteUseCase
 import com.obidia.testagrii.utils.Resource
@@ -57,13 +56,13 @@ class SubNoteViewModel @Inject constructor(
     }
   }
 
-  fun addSubNote(text: String) {
+  fun addSubNote() {
     viewModelScope.launch(Dispatchers.IO) {
       useCase.addSubNote(
         SubNoteModel(
           0,
           if (isUpdate) idNoteUpdate else getLatestNote(),
-          text, false
+          "", false
         )
       )
     }

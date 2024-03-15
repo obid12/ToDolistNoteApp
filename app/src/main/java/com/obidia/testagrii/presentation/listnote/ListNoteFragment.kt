@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ListNoteFragment :  Fragment() {
+class ListNoteFragment : Fragment() {
 
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()

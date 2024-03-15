@@ -25,7 +25,7 @@ class ListNoteFragment :  Fragment() {
 
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()
-  private val itemAdapter: ListAdapter = ListAdapter(true)
+  private val itemAdapter: ListAdapter = ListAdapter()
   private var isBottomSheetShowing = false
 
   override fun onCreateView(
@@ -100,6 +100,7 @@ class ListNoteFragment :  Fragment() {
 
   private fun setupRecycleView() {
     binding.rv.run {
+      itemAnimator = null
       adapter = itemAdapter
       layoutManager = StaggeredGridLayoutManager(
         2,

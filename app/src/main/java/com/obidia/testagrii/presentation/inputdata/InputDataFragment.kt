@@ -3,7 +3,6 @@ package com.obidia.testagrii.presentation.inputdata
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.replaceIfNull
 import com.obidia.testagrii.utils.success
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
@@ -32,18 +32,14 @@ class InputDataFragment : BottomSheetDialogFragment() {
 
   private val subNoteViewModel: SubNoteViewModel by viewModels()
   private var _binding: FragmentInputDataBinding? = null
-  private var isUpdateNote: Boolean = false
-  private var noteModel: NoteModel? = null
-  private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
-  private var listSubNote: ArrayList<SubNoteModel> = arrayListOf()
-  private var title: String = ""
-  private var idNote: Int = 0
-  private var idSubNote: Int = 0
-  private var textSubNote: String = ""
   private val binding get() = _binding!!
-  private val listUpdate: ArrayList<SubNoteModel> = arrayListOf()
-  private var onDisMissListener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? =
-    null
+  private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
+  private var onDisMissListener: ((
+    listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String
+  ) -> Unit)? = null
+
+  @Inject
+  lateinit var model: InputDataModel
 
   override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
     val dialog = BottomSheetDialog(requireContext(), theme)
@@ -87,19 +83,17 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun setIsUpdate() {
-    subNoteViewModel.setIsUpdate(isUpdateNote, noteModel?.id.replaceIfNull())
+    subNoteViewModel.setIsUpdate(model.isUpdateNote, model.noteModel?.id.replaceIfNull())
   }
 
   override fun onDismiss(dialog: DialogInterface) {
     super.onDismiss(dialog)
-    Log.d("kesini", "yaa")
-    title = binding.etNoteTitle.text.toString()
-    setText(text = textSubNote, idSubNote = idSubNote)
-    Log.d("kesini", listUpdate.toString())
-    listUpdate.forEach {
+    model.title = binding.etNoteTitle.text.toString()
+    setText(model.dataSubNoteModel)
+    model.listUpdate.forEach {
       subNoteViewModel.updateSubNote(it)
     }
-    onDisMissListener?.invoke(listSubNote, getNoteId(), title)
+    onDisMissListener?.invoke(model.listSubNote, getNoteId(), model.title)
   }
 
   private fun setupObserver() {
@@ -112,14 +106,14 @@ class InputDataFragment : BottomSheetDialogFragment() {
     lifecycleScope.launch {
       subNoteViewModel.idNote.flowWithLifecycle(lifecycle).catch { }
         .collect {
-          idNote = it.replaceIfNull()
+          model.idNote = it.replaceIfNull()
         }
     }
   }
 
   private fun getNoteId(): Int {
-    return if (isUpdateNote) noteModel?.id.replaceIfNull()
-    else idNote
+    return if (model.isUpdateNote) model.noteModel?.id.replaceIfNull()
+    else model.idNote
   }
 
   private fun getListNoteObserver() {
@@ -128,7 +122,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
       subNoteViewModel.listSUbNote.flowWithLifecycle(lifecycle).catch { }.collect { state ->
         state.loading { }
         state.success {
-          listSubNote.run {
+          model.listSubNote.run {
             this.clear()
             this.addAll(it)
           }
@@ -140,8 +134,8 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun loadArguments() {
-    isUpdateNote = arguments?.getBoolean(ARGS_IS_UPDATE_NOTE).replaceIfNull()
-    noteModel = arguments?.getParcelable(ARGS_DATA_NOTE)
+    model.isUpdateNote = arguments?.getBoolean(ARGS_IS_UPDATE_NOTE).replaceIfNull()
+    model.noteModel = arguments?.getParcelable(ARGS_DATA_NOTE)
   }
 
   private fun setupView() {
@@ -151,69 +145,77 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun setupInputSubNote() {
-    binding.etNoteBody.setOnEditorActionListener { v, actionId, _ ->
-      if (actionId == 0) {
-        subNoteViewModel.addSubNote(v.text.toString())
-        v.text = ""
-      }
-      false
-    }
+//    binding.etNoteBody.setOnEditorActionListener { v, actionId, _ ->
+//      if (actionId == 0) {
+//        subNoteViewModel.addSubNote(v.text.toString())
+//        v.text = ""
+//      }
+//      false
+//    }
   }
 
   private fun setupAdapter(list: ArrayList<SubNoteModel>) {
+    val listSubNote = ListItemAdapter.transform(list)
     subNoteAdapter.run {
-      submitList(list)
+      submitList(listSubNote)
       setOnDeleteListener {
-        subNoteViewModel.deleteSubNote(it)
+        it?.let { it1 -> subNoteViewModel.deleteSubNote(it1) }
       }
-      setOnUpdateListener { item, text, isHasFocus ->
+      setOnUpdateListener { item, isHasFocus ->
         if (isHasFocus) {
-          idSubNote = item.idSubNote
-          textSubNote = text
+          model.dataSubNoteModel = item
           return@setOnUpdateListener
         }
+
+        setText(item)
       }
       setOnCheckBoxListener { item, position ->
         subNoteAdapter.updateItem(position)
-        val listFilter = listUpdate.filter {
-          it.idSubNote == item.idSubNote
+        val listFilter = model.listUpdate.filter {
+          it.idSubNote == item?.idSubNote
         }
 
         if (listFilter.isEmpty()) {
-          listUpdate.add(item)
-          Log.d("kesini", listUpdate.toString())
+          item?.let { model.listUpdate.add(it) }
           return@setOnCheckBoxListener
         }
 
-        val index = listUpdate.indexOfFirst {
-          it.idSubNote == item.idSubNote
+        val index = model.listUpdate.indexOfFirst {
+          it.idSubNote == item?.idSubNote
         }
 
-        listUpdate[index].apply {
-          this.isFinished = item.isFinished
+        model.listUpdate[index].apply {
+          this.isFinished = item?.isFinished.replaceIfNull()
         }
+      }
+      setOnAddItemListener {
+        setText(model.dataSubNoteModel)
+        model.listUpdate.forEach {
+          subNoteViewModel.updateSubNote(it)
+        }
+        model.listUpdate.clear()
+        subNoteViewModel.addSubNote()
       }
     }
   }
 
-  private fun setText(text: String, item: SubNoteModel? = null, idSubNote: Int = 0) {
-    if (text.isEmpty()) return
+  private fun setText(item: SubNoteModel?) {
 
-    val listFilter = listUpdate.filter {
-      it.idSubNote == if (idSubNote == 0) idSubNote else item?.idSubNote
+    val listFilter = model.listUpdate.filter {
+      it.idSubNote == item?.idSubNote
     }
 
     if (listFilter.isEmpty()) {
-      item?.let { listUpdate.add(it) }
+      item?.let { model.listUpdate.add(it) }
       return
     }
 
-    val index = listUpdate.indexOfFirst {
-      it.idSubNote == if (idSubNote == 0) idSubNote else item?.idSubNote
+    val index = model.listUpdate.indexOfFirst {
+      it.idSubNote == item?.idSubNote
     }
 
-    listUpdate[index].apply {
-      this.text = text
+    model.listUpdate[index].apply {
+      this.text = item?.text.replaceIfNull()
     }
   }
 
@@ -225,7 +227,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun adjustViewInput() {
-    binding.etNoteTitle.setText(if (isUpdateNote) noteModel?.activity else "")
+    binding.etNoteTitle.setText(if (model.isUpdateNote) model.noteModel?.activity else "")
   }
 
   companion object {

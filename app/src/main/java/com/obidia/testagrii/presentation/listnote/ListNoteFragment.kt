@@ -22,15 +22,15 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ListNoteFragment : Fragment() {
-
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()
   private val itemAdapter: ListAdapter = ListAdapter()
   private var isBottomSheetShowing = false
 
   override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
   ): View {
     binding = FragmentListNoteBinding.inflate(inflater, container, false)
     setupView()
@@ -64,23 +64,24 @@ class ListNoteFragment : Fragment() {
 
   private fun gotoInputDialog(
     data: NoteModel? = null,
-    isUpdateNote: Boolean = false
+    isUpdateNote: Boolean = false,
   ) {
-    val dialogFragment = InputDataFragment.newInstance(
-      data,
-      isUpdateNote
-    ).also {
-      it.setOnDisMissListener { list, id, title ->
-        isBottomSheetShowing = false
+    val dialogFragment =
+      InputDataFragment.newInstance(
+        data,
+        isUpdateNote,
+      ).also {
+        it.setOnDisMissListener { list, id, title ->
+          isBottomSheetShowing = false
 
-        if (title.isEmpty() && list.isEmpty()) {
-          noteViewModel.deleteNoteById(id)
-          return@setOnDisMissListener
+          if (title.isEmpty() && list.isEmpty()) {
+            noteViewModel.deleteNoteById(id)
+            return@setOnDisMissListener
+          }
+
+          noteViewModel.updateNote(title, id)
         }
-
-        noteViewModel.updateNote(title, id)
       }
-    }
 
     val fragmentManager = childFragmentManager
     dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
@@ -102,10 +103,11 @@ class ListNoteFragment : Fragment() {
     binding.rv.run {
       itemAnimator = null
       adapter = itemAdapter
-      layoutManager = StaggeredGridLayoutManager(
-        2,
-        StaggeredGridLayoutManager.VERTICAL
-      )
+      layoutManager =
+        StaggeredGridLayoutManager(
+          2,
+          StaggeredGridLayoutManager.VERTICAL,
+        )
     }
   }
 }

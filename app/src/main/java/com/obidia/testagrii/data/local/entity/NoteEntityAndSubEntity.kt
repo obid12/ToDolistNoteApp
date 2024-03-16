@@ -12,9 +12,9 @@ data class NoteEntityAndSubEntity(
   val noteEntity: NoteEntity,
   @Relation(
     parentColumn = "id",
-    entityColumn = "idNote"
+    entityColumn = "idNote",
   )
-  val listSubNoteEntity: List<SubNoteEntity>
+  val listSubNoteEntity: List<SubNoteEntity>,
 ) : Parcelable {
   companion object {
     fun transform(list: List<NoteEntityAndSubEntity>): ArrayList<NoteAndSubNoteModel> {
@@ -22,9 +22,9 @@ data class NoteEntityAndSubEntity(
         list.map {
           NoteAndSubNoteModel(
             NoteEntity.transform(it.noteEntity),
-            SubNoteEntity.transform(it.listSubNoteEntity)
+            SubNoteEntity.transform(it.listSubNoteEntity),
           )
-        }
+        },
       )
     }
   }

@@ -8,15 +8,26 @@ import kotlinx.coroutines.flow.Flow
 
 interface NoteRepository {
   fun addNote(data: NoteModel)
+
   fun updateNote(data: NoteModel)
+
   fun deleteNote(data: NoteModel)
+
   fun deleteAllNotes()
+
   fun getAllNotes(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>>
+
   fun addSubNote(data: SubNoteModel)
+
   fun updateSubNote(data: SubNoteModel)
+
   fun deleteSubNote(data: SubNoteModel)
+
   fun getAllSubNotes(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>>
+
   fun updateSomeSubNote(idNote: Int)
+
   fun getLatestNote(): Int
+
   fun deleteNoteById(noteId: Int)
 }

@@ -14,35 +14,38 @@ data class NoteEntity(
   val activity: String?,
   val detail: String?,
   val category: String?,
-  val isFinish: Boolean?
+  val isFinish: Boolean?,
 ) : Parcelable {
   companion object {
-    fun transform(entity: List<NoteEntity>): ArrayList<NoteModel> = ArrayList(
-      entity.map {
-        NoteModel(
-          it.id.replaceIfNull(),
-          it.activity.replaceIfNull(),
-          it.detail.replaceIfNull(),
-          it.category.replaceIfNull(),
-          it.isFinish.replaceIfNull()
-        )
-      }
-    )
+    fun transform(entity: List<NoteEntity>): ArrayList<NoteModel> =
+      ArrayList(
+        entity.map {
+          NoteModel(
+            it.id.replaceIfNull(),
+            it.activity.replaceIfNull(),
+            it.detail.replaceIfNull(),
+            it.category.replaceIfNull(),
+            it.isFinish.replaceIfNull(),
+          )
+        },
+      )
 
-    fun transform(model: NoteModel): NoteEntity = NoteEntity(
-      model.id,
-      model.activity,
-      model.detail,
-      model.category,
-      model.isFinish
-    )
+    fun transform(model: NoteModel): NoteEntity =
+      NoteEntity(
+        model.id,
+        model.activity,
+        model.detail,
+        model.category,
+        model.isFinish,
+      )
 
-    fun transform(model: NoteEntity): NoteModel = NoteModel(
-      model.id,
-      model.activity.replaceIfNull(),
-      model.detail.replaceIfNull(),
-      model.category.replaceIfNull(),
-      model.isFinish.replaceIfNull()
-    )
+    fun transform(model: NoteEntity): NoteModel =
+      NoteModel(
+        model.id,
+        model.activity.replaceIfNull(),
+        model.detail.replaceIfNull(),
+        model.category.replaceIfNull(),
+        model.isFinish.replaceIfNull(),
+      )
   }
 }

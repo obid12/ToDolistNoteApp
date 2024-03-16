@@ -12,19 +12,25 @@ import com.obidia.testagrii.presentation.listnote.ListSubNoteAdapter.SubNoteView
 import com.obidia.testagrii.utils.replaceIfNull
 
 class ListSubNoteAdapter : ListAdapter<SubNoteModel, SubNoteViewHolder>(DiffCallBack) {
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SubNoteViewHolder {
+  override fun onCreateViewHolder(
+    parent: ViewGroup,
+    viewType: Int,
+  ): SubNoteViewHolder {
     return SubNoteViewHolder(
-      ItemSubNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+      ItemSubNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false),
     )
   }
 
-  override fun onBindViewHolder(holder: SubNoteViewHolder, position: Int) {
+  override fun onBindViewHolder(
+    holder: SubNoteViewHolder,
+    position: Int,
+  ) {
     val data = getItem(position)
     holder.bind(data)
   }
 
   inner class SubNoteViewHolder(
-    private var binding: ItemSubNoteBinding
+    private var binding: ItemSubNoteBinding,
   ) : ViewHolder(binding.root) {
     fun bind(data: SubNoteModel) {
       binding.tvNoteBody.text = data.text
@@ -37,12 +43,12 @@ class ListSubNoteAdapter : ListAdapter<SubNoteModel, SubNoteViewHolder>(DiffCall
   object DiffCallBack : DiffUtil.ItemCallback<SubNoteModel>() {
     override fun areItemsTheSame(
       oldItem: SubNoteModel,
-      newItem: SubNoteModel
+      newItem: SubNoteModel,
     ): Boolean = oldItem.idSubNote == newItem.idSubNote
 
     override fun areContentsTheSame(
       oldItem: SubNoteModel,
-      newItem: SubNoteModel
+      newItem: SubNoteModel,
     ): Boolean = oldItem.hashCode() == newItem.hashCode()
   }
 }

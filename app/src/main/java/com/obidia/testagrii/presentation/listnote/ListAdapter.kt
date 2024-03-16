@@ -14,7 +14,6 @@ import com.obidia.testagrii.presentation.listnote.ListAdapter.ListViewHolder
 
 class ListAdapter :
   ListAdapter<NoteAndSubNoteModel, ListViewHolder>(DiffCallBack) {
-
   private var onClickItem: ((data: NoteAndSubNoteModel) -> Unit)? = null
 
   fun setOnClickItem(listener: ((data: NoteAndSubNoteModel) -> Unit)?) {
@@ -22,10 +21,10 @@ class ListAdapter :
   }
 
   inner class ListViewHolder(
-    private var binding: ItemNoteBinding
+    private var binding: ItemNoteBinding,
   ) : RecyclerView.ViewHolder(binding.root) {
-
     private val subNoteAdapter: ListSubNoteAdapter = ListSubNoteAdapter()
+
     private fun getContext(): Context = itemView.context
 
     fun bind(data: NoteAndSubNoteModel) {
@@ -56,29 +55,45 @@ class ListAdapter :
     }
 
     private fun RecyclerView.onTouchListener() {
-      this.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-        override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-          return true
-        }
+      this.addOnItemTouchListener(
+        object : RecyclerView.OnItemTouchListener {
+          override fun onInterceptTouchEvent(
+            rv: RecyclerView,
+            e: MotionEvent,
+          ): Boolean {
+            return true
+          }
 
-        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-          binding.cardView.onTouchEvent(e)
-        }
+          override fun onTouchEvent(
+            rv: RecyclerView,
+            e: MotionEvent,
+          ) {
+            binding.cardView.onTouchEvent(e)
+          }
 
-        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
-      })
+          override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+        },
+      )
     }
   }
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
+  override fun onCreateViewHolder(
+    parent: ViewGroup,
+    viewType: Int,
+  ): ListViewHolder {
     return ListViewHolder(
       ItemNoteBinding.inflate(
-        LayoutInflater.from(parent.context), parent, false
-      )
+        LayoutInflater.from(parent.context),
+        parent,
+        false,
+      ),
     )
   }
 
-  override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
+  override fun onBindViewHolder(
+    holder: ListViewHolder,
+    position: Int,
+  ) {
     val data = getItem(position)
     holder.bind(data)
   }
@@ -86,12 +101,12 @@ class ListAdapter :
   object DiffCallBack : DiffUtil.ItemCallback<NoteAndSubNoteModel>() {
     override fun areItemsTheSame(
       oldItem: NoteAndSubNoteModel,
-      newItem: NoteAndSubNoteModel
+      newItem: NoteAndSubNoteModel,
     ): Boolean = oldItem.noteEntity.id == newItem.noteEntity.id
 
     override fun areContentsTheSame(
       oldItem: NoteAndSubNoteModel,
-      newItem: NoteAndSubNoteModel
+      newItem: NoteAndSubNoteModel,
     ): Boolean = oldItem.hashCode() == newItem.hashCode()
   }
 }

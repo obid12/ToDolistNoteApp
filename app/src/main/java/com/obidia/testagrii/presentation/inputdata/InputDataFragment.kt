@@ -29,14 +29,17 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class InputDataFragment : BottomSheetDialogFragment() {
-
   private val subNoteViewModel: SubNoteViewModel by viewModels()
   private var _binding: FragmentInputDataBinding? = null
   private val binding get() = _binding!!
   private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
-  private var onDisMissListener: ((
-    listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String
-  ) -> Unit)? = null
+  private var onDisMissListener: (
+    (
+      listSubNote: ArrayList<SubNoteModel>,
+      idNote: Int,
+      title: String,
+    ) -> Unit
+  )? = null
 
   @Inject
   lateinit var model: InputDataModel
@@ -71,8 +74,9 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?,
   ): View {
     _binding = FragmentInputDataBinding.inflate(inflater, container, false)
     loadArguments()
@@ -119,7 +123,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
   private fun getListNoteObserver() {
     subNoteViewModel.getAllSubNote()
     lifecycleScope.launch {
-      subNoteViewModel.listSUbNote.flowWithLifecycle(lifecycle).catch { }.collect { state ->
+      subNoteViewModel.listSubNote.flowWithLifecycle(lifecycle).catch { }.collect { state ->
         state.loading { }
         state.success {
           model.listSubNote.run {
@@ -171,18 +175,20 @@ class InputDataFragment : BottomSheetDialogFragment() {
       }
       setOnCheckBoxListener { item, position ->
         subNoteAdapter.updateItem(position)
-        val listFilter = model.listUpdate.filter {
-          it.idSubNote == item?.idSubNote
-        }
+        val listFilter =
+          model.listUpdate.filter {
+            it.idSubNote == item?.idSubNote
+          }
 
         if (listFilter.isEmpty()) {
           item?.let { model.listUpdate.add(it) }
           return@setOnCheckBoxListener
         }
 
-        val index = model.listUpdate.indexOfFirst {
-          it.idSubNote == item?.idSubNote
-        }
+        val index =
+          model.listUpdate.indexOfFirst {
+            it.idSubNote == item?.idSubNote
+          }
 
         model.listUpdate[index].apply {
           this.isFinished = item?.isFinished.replaceIfNull()
@@ -200,19 +206,20 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun setText(item: SubNoteModel?) {
-
-    val listFilter = model.listUpdate.filter {
-      it.idSubNote == item?.idSubNote
-    }
+    val listFilter =
+      model.listUpdate.filter {
+        it.idSubNote == item?.idSubNote
+      }
 
     if (listFilter.isEmpty()) {
       item?.let { model.listUpdate.add(it) }
       return
     }
 
-    val index = model.listUpdate.indexOfFirst {
-      it.idSubNote == item?.idSubNote
-    }
+    val index =
+      model.listUpdate.indexOfFirst {
+        it.idSubNote == item?.idSubNote
+      }
 
     model.listUpdate[index].apply {
       this.text = item?.text.replaceIfNull()
@@ -236,7 +243,7 @@ class InputDataFragment : BottomSheetDialogFragment() {
 
     fun newInstance(
       data: NoteModel? = null,
-      isUpdateNote: Boolean = false
+      isUpdateNote: Boolean = false,
     ): InputDataFragment {
       val dialog = InputDataFragment()
       val bundle = Bundle()
@@ -247,5 +254,3 @@ class InputDataFragment : BottomSheetDialogFragment() {
     }
   }
 }
-
-

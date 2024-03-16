@@ -18,7 +18,6 @@ import com.obidia.testagrii.utils.visible
 
 class ListSubNotesAdapter(val isListUser: Boolean = false) :
   ListAdapter<ListItemAdapter, ViewHolder>(DiffCallBack) {
-
   private var onDeleteListener: ((item: SubNoteModel?) -> Unit)? = null
   private var onCheckBoxListener: ((item: SubNoteModel?, position: Int) -> Unit)? = null
   private var onUpdateListener: ((item: SubNoteModel?, hasFocus: Boolean) -> Unit)? =
@@ -45,25 +44,35 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
     notifyItemChanged(position, Paint.STRIKE_THRU_TEXT_FLAG)
   }
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+  override fun onCreateViewHolder(
+    parent: ViewGroup,
+    viewType: Int,
+  ): ViewHolder {
     return if (viewType == SubNoteModelType.LIST.ordinal) {
       SubNoteViewHolder(
         ItemSubNoteDetailPageBinding.inflate(
-          LayoutInflater.from(parent.context), parent, false
-        )
+          LayoutInflater.from(parent.context),
+          parent,
+          false,
+        ),
       )
     } else {
       ButtonSubNoteViewHolder(
         ItemSubNoteDetailPageBinding.inflate(
-          LayoutInflater.from(parent.context), parent, false
-        )
+          LayoutInflater.from(parent.context),
+          parent,
+          false,
+        ),
       )
     }
   }
 
   override fun getItemViewType(position: Int): Int = getItem(position).viewType
 
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+  override fun onBindViewHolder(
+    holder: ViewHolder,
+    position: Int,
+  ) {
     val data = getItem(position)
     when (data.viewType) {
       SubNoteModelType.LIST.ordinal -> {
@@ -77,7 +86,7 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
   }
 
   inner class ButtonSubNoteViewHolder(
-    private var binding: ItemSubNoteDetailPageBinding
+    private var binding: ItemSubNoteDetailPageBinding,
   ) : ViewHolder(binding.root) {
     fun bind() {
       binding.run {
@@ -94,7 +103,7 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
   }
 
   inner class SubNoteViewHolder(
-    private var binding: ItemSubNoteDetailPageBinding
+    private var binding: ItemSubNoteDetailPageBinding,
   ) : ViewHolder(binding.root) {
     fun bind(item: ListItemAdapter) {
       val data = item.item
@@ -121,8 +130,9 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
         etNoteBody.let {
           it.visible(!isListUser)
           it.setText(data?.text)
-          it.paintFlags = if (data?.isFinished.replaceIfNull())
-            Paint.STRIKE_THRU_TEXT_FLAG else Paint.ANTI_ALIAS_FLAG
+          it.paintFlags =
+            if (data?.isFinished.replaceIfNull())
+              Paint.STRIKE_THRU_TEXT_FLAG else Paint.ANTI_ALIAS_FLAG
           it.onFocusChangeListener = getFocusWatcher(it, data, ivDelete)
           it.addTextChangedListener(getTextWatcher(it, data))
         }
@@ -133,7 +143,7 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
   private fun getFocusWatcher(
     editText: EditText,
     item: SubNoteModel?,
-    img: ImageView
+    img: ImageView,
   ): View.OnFocusChangeListener {
     return View.OnFocusChangeListener { _, _ ->
       img.visible(!isListUser && editText.hasFocus())
@@ -143,15 +153,28 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
     }
   }
 
-  private fun getTextWatcher(editText: EditText, data: SubNoteModel?): TextWatcher {
+  private fun getTextWatcher(
+    editText: EditText,
+    data: SubNoteModel?,
+  ): TextWatcher {
     var oldText = ""
     var isChange = false
     return object : TextWatcher {
-      override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+      override fun beforeTextChanged(
+        p0: CharSequence?,
+        p1: Int,
+        p2: Int,
+        p3: Int,
+      ) {
         oldText = p0.toString()
       }
 
-      override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+      override fun onTextChanged(
+        p0: CharSequence?,
+        p1: Int,
+        p2: Int,
+        p3: Int,
+      ) {
         isChange = oldText != p0.toString()
       }
 
@@ -167,12 +190,12 @@ class ListSubNotesAdapter(val isListUser: Boolean = false) :
   object DiffCallBack : DiffUtil.ItemCallback<ListItemAdapter>() {
     override fun areItemsTheSame(
       oldItem: ListItemAdapter,
-      newItem: ListItemAdapter
+      newItem: ListItemAdapter,
     ): Boolean = oldItem.item?.idSubNote == newItem.item?.idSubNote
 
     override fun areContentsTheSame(
       oldItem: ListItemAdapter,
-      newItem: ListItemAdapter
+      newItem: ListItemAdapter,
     ): Boolean = oldItem.hashCode() == newItem.hashCode()
   }
 }

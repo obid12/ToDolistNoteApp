@@ -4,20 +4,21 @@ import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
 import javax.inject.Inject
 
-
-class InputDataModel @Inject constructor() {
-  var isUpdateNote: Boolean = false
-  var noteModel: NoteModel? = null
-  var listSubNote: ArrayList<SubNoteModel> = arrayListOf()
-  var title: String = ""
-  var idNote: Int = 0
-  var dataSubNoteModel: SubNoteModel? = null
-  val listUpdate: ArrayList<SubNoteModel> = arrayListOf()
-}
+class InputDataModel
+  @Inject
+  constructor() {
+    var isUpdateNote: Boolean = false
+    var noteModel: NoteModel? = null
+    var listSubNote: ArrayList<SubNoteModel> = arrayListOf()
+    var title: String = ""
+    var idNote: Int = 0
+    var dataSubNoteModel: SubNoteModel? = null
+    val listUpdate: ArrayList<SubNoteModel> = arrayListOf()
+  }
 
 data class ListItemAdapter(
   val viewType: Int,
-  val item: SubNoteModel? = null
+  val item: SubNoteModel? = null,
 ) {
   companion object {
     fun transform(listData: ArrayList<SubNoteModel>): ArrayList<ListItemAdapter> {
@@ -33,7 +34,5 @@ data class ListItemAdapter(
 
 enum class SubNoteModelType {
   LIST,
-  BUTTON
+  BUTTON,
 }
-
-

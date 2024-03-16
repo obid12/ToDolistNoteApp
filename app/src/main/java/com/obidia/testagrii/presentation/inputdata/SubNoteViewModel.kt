@@ -13,66 +13,70 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class SubNoteViewModel @Inject constructor(
-  private val useCase: NoteUseCase
-) : ViewModel() {
+class SubNoteViewModel
+  @Inject
+  constructor(
+    private val useCase: NoteUseCase,
+  ) : ViewModel() {
+    private var isUpdate: Boolean = false
+    private var idNoteUpdate: Int = 0
 
-  private var isUpdate: Boolean = false
-  private var idNoteUpdate: Int = 0
+    // Backing property
+    private val _listSubNote: MutableStateFlow<Resource<ArrayList<SubNoteModel>>> = MutableStateFlow(Resource.Success(arrayListOf()))
+    val listSubNote: MutableStateFlow<Resource<ArrayList<SubNoteModel>>> get() = _listSubNote
 
-  private val _listSubNote: MutableStateFlow<Resource<ArrayList<SubNoteModel>>> = MutableStateFlow(
-    Resource.Success(arrayListOf())
-  )
-  val listSUbNote get() = _listSubNote
+    private val _idNote: MutableStateFlow<Int?> = MutableStateFlow(null)
+    val idNote get() = _idNote
 
-  private val _idNote: MutableStateFlow<Int?> = MutableStateFlow(null)
-  val idNote get() = _idNote
+    fun setIsUpdate(
+      isUpdate: Boolean,
+      idNote: Int,
+    ) {
+      this.isUpdate = isUpdate
+      this.idNoteUpdate = idNote
+    }
 
-  fun setIsUpdate(isUpdate: Boolean, idNote: Int) {
-    this.isUpdate = isUpdate
-    this.idNoteUpdate = idNote
-  }
-
-  fun getAllSubNote() {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.getAllSubNotes(
-        if (isUpdate) idNoteUpdate
-        else getLatestNote()
-      ).catch { }.collect {
-        listSUbNote.value = it
+    fun getAllSubNote() {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.getAllSubNotes(
+          if (isUpdate) idNoteUpdate
+          else getLatestNote(),
+        ).catch { }.collect {
+          _listSubNote.value = it
+        }
       }
     }
-  }
 
-  fun deleteSubNote(data: SubNoteModel) {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.deleteSubNote(data)
+    fun deleteSubNote(data: SubNoteModel) {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.deleteSubNote(data)
+      }
     }
-  }
 
-  fun updateSubNote(data: SubNoteModel) {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.updateSubNote(data)
+    fun updateSubNote(data: SubNoteModel) {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.updateSubNote(data)
+      }
     }
-  }
 
-  fun addSubNote() {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.addSubNote(
-        SubNoteModel(
-          0,
-          if (isUpdate) idNoteUpdate else getLatestNote(),
-          "", false
+    fun addSubNote() {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.addSubNote(
+          SubNoteModel(
+            0,
+            if (isUpdate) idNoteUpdate else getLatestNote(),
+            "",
+            false,
+          ),
         )
-      )
+      }
     }
-  }
 
-  fun getNoteId() {
-    viewModelScope.launch(Dispatchers.IO) {
-      _idNote.value = getLatestNote()
+    fun getNoteId() {
+      viewModelScope.launch(Dispatchers.IO) {
+        _idNote.value = getLatestNote()
+      }
     }
-  }
 
-  private fun getLatestNote(): Int = useCase.getLatestNote()
-}
+    private fun getLatestNote(): Int = useCase.getLatestNote()
+  }

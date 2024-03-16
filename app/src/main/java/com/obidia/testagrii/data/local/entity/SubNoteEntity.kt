@@ -12,7 +12,7 @@ data class SubNoteEntity(
   @PrimaryKey(autoGenerate = true) val idSubNote: Int,
   val idNote: Int,
   val text: String,
-  val isFinished: Boolean
+  val isFinished: Boolean,
 ) : Parcelable {
   companion object {
     fun transform(entity: List<SubNoteEntity>): ArrayList<SubNoteModel> {
@@ -22,9 +22,9 @@ data class SubNoteEntity(
             it.idSubNote,
             it.idNote,
             it.text,
-            it.isFinished
+            it.isFinished,
           )
-        }
+        },
       )
     }
 
@@ -33,7 +33,7 @@ data class SubNoteEntity(
         entity.idSubNote,
         entity.idNote,
         entity.text,
-        entity.isFinished
+        entity.isFinished,
       )
     }
   }

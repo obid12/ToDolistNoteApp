@@ -7,7 +7,9 @@ import com.obidia.testagrii.utils.Resource.Success
 
 sealed class Resource<out R> {
   data class Success<out T>(val data: T) : Resource<T>()
+
   data class Error(val throwable: Throwable) : Resource<Nothing>()
+
   object Loading : Resource<Nothing>()
 }
 
@@ -43,7 +45,10 @@ fun Int?.replaceIfNull(replace: Int = 0): Int {
   return this ?: replace
 }
 
-fun View.visible(isVisible: Boolean, isInVisible: Boolean = false) {
+fun View.visible(
+  isVisible: Boolean,
+  isInVisible: Boolean = false,
+) {
   if (isVisible) {
     this.visibility = View.VISIBLE
     return

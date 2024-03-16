@@ -13,34 +13,39 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class NoteViewModel @Inject constructor(
-  private val useCase: NoteUseCase
-) : ViewModel() {
-  fun getAllNote(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>> = useCase.getAllNotes()
+class NoteViewModel
+  @Inject
+  constructor(
+    private val useCase: NoteUseCase,
+  ) : ViewModel() {
+    fun getAllNote(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>> = useCase.getAllNotes()
 
-  fun addNote(data: NoteModel) {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.addNote(data)
+    fun addNote(data: NoteModel) {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.addNote(data)
+      }
     }
-  }
 
-  fun deleteNoteById(noteId: Int) {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.deleteNoteById(noteId)
+    fun deleteNoteById(noteId: Int) {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.deleteNoteById(noteId)
+      }
     }
-  }
 
-  fun updateNote(title: String, idNote: Int) {
-    viewModelScope.launch(Dispatchers.IO) {
-      useCase.updateNote(
-        NoteModel(
-          idNote,
-          title,
-          "",
-          "",
-          false
+    fun updateNote(
+      title: String,
+      idNote: Int,
+    ) {
+      viewModelScope.launch(Dispatchers.IO) {
+        useCase.updateNote(
+          NoteModel(
+            idNote,
+            title,
+            "",
+            "",
+            false,
+          ),
         )
-      )
+      }
     }
   }
-}

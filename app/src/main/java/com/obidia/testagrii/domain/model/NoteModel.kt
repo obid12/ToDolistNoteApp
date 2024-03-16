@@ -9,5 +9,5 @@ data class NoteModel(
   val activity: String,
   val detail: String,
   val category: String,
-  var isFinish: Boolean
+  var isFinish: Boolean,
 ) : Parcelable

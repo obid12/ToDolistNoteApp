@@ -12,66 +12,68 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 
-class NoteRepositoryImplementation @Inject constructor(
-  private val localDataSource: LocalDataSource
-) : NoteRepository {
-  override fun addNote(data: NoteModel) {
-    localDataSource.addNote(data)
-  }
+class NoteRepositoryImplementation
+  @Inject
+  constructor(
+    private val localDataSource: LocalDataSource,
+  ) : NoteRepository {
+    override fun addNote(data: NoteModel) {
+      localDataSource.addNote(data)
+    }
 
-  override fun updateNote(data: NoteModel) {
-    localDataSource.updateNote(data)
-  }
+    override fun updateNote(data: NoteModel) {
+      localDataSource.updateNote(data)
+    }
 
-  override fun deleteNote(data: NoteModel) {
-    localDataSource.deleteNote(data)
-  }
+    override fun deleteNote(data: NoteModel) {
+      localDataSource.deleteNote(data)
+    }
 
-  override fun deleteAllNotes() {
-    localDataSource.deleteAllNotes()
-  }
+    override fun deleteAllNotes() {
+      localDataSource.deleteAllNotes()
+    }
 
-  override fun getAllNotes(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>> {
-    return flow {
-      val data = localDataSource.getAllNotes()
-      data.onStart { emit(Loading) }.catch {
-        emit(Resource.Error(it))
-      }.collect {
-        emit(Resource.Success(it))
+    override fun getAllNotes(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>> {
+      return flow {
+        val data = localDataSource.getAllNotes()
+        data.onStart { emit(Loading) }.catch {
+          emit(Resource.Error(it))
+        }.collect {
+          emit(Resource.Success(it))
+        }
       }
     }
-  }
 
-  override fun addSubNote(data: SubNoteModel) {
-    localDataSource.addSubNote(data)
-  }
+    override fun addSubNote(data: SubNoteModel) {
+      localDataSource.addSubNote(data)
+    }
 
-  override fun updateSubNote(data: SubNoteModel) {
-    localDataSource.updateSubNote(data)
-  }
+    override fun updateSubNote(data: SubNoteModel) {
+      localDataSource.updateSubNote(data)
+    }
 
-  override fun deleteSubNote(data: SubNoteModel) {
-    localDataSource.deleteSubNote(data)
-  }
+    override fun deleteSubNote(data: SubNoteModel) {
+      localDataSource.deleteSubNote(data)
+    }
 
-  override fun getAllSubNotes(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>> {
-    return flow {
-      val data = localDataSource.getAllSubNotes(idNote)
-      data.onStart { emit(Loading) }.catch {
-        emit(Resource.Error(it))
-      }.collect {
-        emit(Resource.Success(it))
+    override fun getAllSubNotes(idNote: Int): Flow<Resource<ArrayList<SubNoteModel>>> {
+      return flow {
+        val data = localDataSource.getAllSubNotes(idNote)
+        data.onStart { emit(Loading) }.catch {
+          emit(Resource.Error(it))
+        }.collect {
+          emit(Resource.Success(it))
+        }
       }
     }
-  }
 
-  override fun updateSomeSubNote(idNote: Int) {
-    localDataSource.updateSomeSubNote(idNote)
-  }
+    override fun updateSomeSubNote(idNote: Int) {
+      localDataSource.updateSomeSubNote(idNote)
+    }
 
-  override fun getLatestNote(): Int = localDataSource.getLatestNote()
+    override fun getLatestNote(): Int = localDataSource.getLatestNote()
 
-  override fun deleteNoteById(noteId: Int) {
-    localDataSource.deleteNoteById(noteId)
+    override fun deleteNoteById(noteId: Int) {
+      localDataSource.deleteNoteById(noteId)
+    }
   }
-}

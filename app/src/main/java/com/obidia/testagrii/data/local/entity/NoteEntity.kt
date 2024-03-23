@@ -17,9 +17,10 @@ data class NoteEntity(
   val isFinish: Boolean?
 ) : Parcelable {
   companion object {
-    fun transform(entity: List<NoteEntity>): ArrayList<NoteModel> = ArrayList(
+
+    fun transform(entity: List<NoteModel>): ArrayList<NoteEntity> = ArrayList(
       entity.map {
-        NoteModel(
+        NoteEntity(
           it.id.replaceIfNull(),
           it.activity.replaceIfNull(),
           it.detail.replaceIfNull(),

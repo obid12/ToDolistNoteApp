@@ -43,4 +43,10 @@ class NoteViewModel @Inject constructor(
       )
     }
   }
+
+  fun deleteNote(list: MutableList<NoteModel>) {
+    viewModelScope.launch(Dispatchers.IO) {
+      useCase.deleteNote(list)
+    }
+  }
 }

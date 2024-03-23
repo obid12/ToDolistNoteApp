@@ -17,8 +17,14 @@ class ListAdapter :
 
   private var onClickItem: ((data: NoteAndSubNoteModel) -> Unit)? = null
 
+  private var onCheckItem: ((data: NoteAndSubNoteModel, isChecked: Boolean) -> Unit)? = null
+
   fun setOnClickItem(listener: ((data: NoteAndSubNoteModel) -> Unit)?) {
     onClickItem = listener
+  }
+
+  fun setOnCheckItem(listener: ((data: NoteAndSubNoteModel, isChecked: Boolean) -> Unit)?) {
+    onCheckItem = listener
   }
 
   inner class ListViewHolder(
@@ -37,13 +43,16 @@ class ListAdapter :
           it.onTouchListener()
         }
         cardView.let { card ->
+          card.isChecked = false
           card.setOnLongClickListener {
             cardView.isChecked = !cardView.isChecked
+            onCheckItem?.invoke(data, card.isChecked)
             true
           }
           card.setOnClickListener {
             if (card.isChecked) {
               card.isChecked = !card.isChecked
+              onCheckItem?.invoke(data, card.isChecked)
               return@setOnClickListener
             }
             onClickItem?.invoke(data)

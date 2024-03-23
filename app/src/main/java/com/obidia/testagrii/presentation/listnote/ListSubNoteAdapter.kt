@@ -11,7 +11,7 @@ import com.obidia.testagrii.domain.model.SubNoteModel
 import com.obidia.testagrii.presentation.listnote.ListSubNoteAdapter.SubNoteViewHolder
 import com.obidia.testagrii.utils.replaceIfNull
 
-class ListSubNoteAdapter : ListAdapter<SubNoteModel, SubNoteViewHolder>(DiffCallBack) {
+class ListSubNoteAdapter :  ListAdapter<SubNoteModel, SubNoteViewHolder>(DiffCallBack) {
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SubNoteViewHolder {
     return SubNoteViewHolder(
       ItemSubNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)

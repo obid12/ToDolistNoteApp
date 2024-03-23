@@ -19,7 +19,7 @@ class NoteUseCaseImplementation @Inject constructor(
     repository.updateNote(data)
   }
 
-  override fun deleteNote(data: NoteModel) {
+  override fun deleteNote(data: MutableList<NoteModel>) {
     repository.deleteNote(data)
   }
 

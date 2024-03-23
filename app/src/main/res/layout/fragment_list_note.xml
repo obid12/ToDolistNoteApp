@@ -20,6 +20,19 @@
       app:titleTextColor="@color/white"
       />
 
+  <ImageView
+      android:id="@+id/iv_delete"
+      android:layout_width="25dp"
+      android:layout_height="25dp"
+      android:layout_marginEnd="16dp"
+      android:contentDescription="@string/app_name"
+      android:src="@drawable/ic_delete"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+      app:layout_constraintEnd_toEndOf="@+id/toolbar"
+      app:layout_constraintTop_toTopOf="@+id/toolbar"
+      />
+
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/rv"
       android:layout_width="match_parent"

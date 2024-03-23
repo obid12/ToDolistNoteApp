@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface NoteUseCase {
   fun addNote(data: NoteModel)
   fun updateNote(data: NoteModel)
-  fun deleteNote(data: NoteModel)
+  fun deleteNote(data: MutableList<NoteModel>)
   fun deleteAllNotes()
   fun getAllNotes(): Flow<Resource<ArrayList<NoteAndSubNoteModel>>>
   fun addSubNote(data: SubNoteModel)

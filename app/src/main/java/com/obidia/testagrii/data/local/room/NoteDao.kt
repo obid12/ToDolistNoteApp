@@ -16,7 +16,7 @@ NoteDao {
   fun updateNote(data: NoteEntity)
 
   @Delete
-  fun deleteNote(data: NoteEntity)
+  fun deleteNote(list: List<NoteEntity>)
 
   @Query("DELETE FROM note_table")
   fun deleteAllNotes()
@@ -35,7 +35,7 @@ NoteDao {
   fun updateSubNote(list: SubNoteEntity)
 
   @Delete
-  fun deleteSubNote(data: SubNoteEntity)
+  fun deleteSubNote(list: SubNoteEntity)
 
   @Query("SELECT * FROM sub_note_table where idNote = :idNote ORDER BY idSubNote ASC")
   fun getAllSubNotes(idNote: Int): Flow<List<SubNoteEntity>>

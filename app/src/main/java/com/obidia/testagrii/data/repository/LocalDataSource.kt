@@ -26,7 +26,7 @@ class LocalDataSource @Inject constructor(
     noteDao.updateNote(NoteEntity.transform(data))
   }
 
-  fun deleteNote(data: NoteModel) {
+  fun deleteNote(data: MutableList<NoteModel>) {
     noteDao.deleteNote(NoteEntity.transform(data))
   }
 

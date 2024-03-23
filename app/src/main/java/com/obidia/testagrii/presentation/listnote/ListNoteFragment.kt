@@ -16,6 +16,7 @@ import com.obidia.testagrii.presentation.inputdata.InputDataFragment
 import com.obidia.testagrii.utils.error
 import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.success
+import com.obidia.testagrii.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ class ListNoteFragment : Fragment() {
   private val noteViewModel: NoteViewModel by viewModels()
   private val itemAdapter: ListAdapter = ListAdapter()
   private var isBottomSheetShowing = false
+  private var lisDeleteNote: MutableList<NoteModel> = mutableListOf()
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -94,6 +96,30 @@ class ListNoteFragment : Fragment() {
 
         isBottomSheetShowing = true
         gotoInputDialog(it.noteEntity, true)
+      }
+
+      setOnCheckItem { data, isChecked ->
+        if (!isChecked) {
+          lisDeleteNote.remove(data.noteEntity)
+          setIvDelete()
+          return@setOnCheckItem
+        }
+
+        lisDeleteNote.add(data.noteEntity)
+        setIvDelete()
+      }
+    }
+  }
+
+  private fun setIvDelete() {
+    binding.ivDelete.run {
+      visible(lisDeleteNote.isNotEmpty())
+      setOnClickListener {
+        val listDeleteRoom: MutableList<NoteModel> = arrayListOf()
+        listDeleteRoom.addAll(lisDeleteNote)
+        noteViewModel.deleteNote(listDeleteRoom)
+        lisDeleteNote.clear()
+        this.visible(false)
       }
     }
   }

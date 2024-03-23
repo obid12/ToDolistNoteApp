@@ -23,7 +23,7 @@ class NoteRepositoryImplementation @Inject constructor(
     localDataSource.updateNote(data)
   }
 
-  override fun deleteNote(data: NoteModel) {
+  override fun deleteNote(data: MutableList<NoteModel>) {
     localDataSource.deleteNote(data)
   }
 

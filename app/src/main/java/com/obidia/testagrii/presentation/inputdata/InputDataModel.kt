@@ -4,7 +4,6 @@ import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
 import javax.inject.Inject
 
-
 class InputDataModel @Inject constructor() {
   var isUpdateNote: Boolean = false
   var noteModel: NoteModel? = null

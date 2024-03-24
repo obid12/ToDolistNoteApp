@@ -1,6 +1,7 @@
 package com.obidia.testagrii.presentation.listnote
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -15,11 +16,11 @@ import com.obidia.testagrii.presentation.listnote.ListAdapter.ListViewHolder
 class ListAdapter :
   ListAdapter<NoteAndSubNoteModel, ListViewHolder>(DiffCallBack) {
 
-  private var onClickItem: ((data: NoteAndSubNoteModel) -> Unit)? = null
+  private var onClickItem: ((data: NoteAndSubNoteModel, binding: ItemNoteBinding) -> Unit)? = null
 
   private var onCheckItem: ((data: NoteAndSubNoteModel, isChecked: Boolean) -> Unit)? = null
 
-  fun setOnClickItem(listener: ((data: NoteAndSubNoteModel) -> Unit)?) {
+  fun setOnClickItem(listener: ((data: NoteAndSubNoteModel, binding: ItemNoteBinding) -> Unit)?) {
     onClickItem = listener
   }
 
@@ -55,7 +56,7 @@ class ListAdapter :
               onCheckItem?.invoke(data, card.isChecked)
               return@setOnClickListener
             }
-            onClickItem?.invoke(data)
+            onClickItem?.invoke(data, binding)
           }
         }
         subNoteAdapter.submitList(data.listSubNoteEntity)

@@ -5,14 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.obidia.testagrii.BuildConfig
+import com.obidia.testagrii.R
 import com.obidia.testagrii.databinding.FragmentListNoteBinding
+import com.obidia.testagrii.databinding.ItemNoteBinding
 import com.obidia.testagrii.domain.model.NoteAndSubNoteModel
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.presentation.inputdata.InputDataFragment
+import com.obidia.testagrii.presentation.share.ShareViewModel
 import com.obidia.testagrii.utils.error
 import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.success
@@ -27,8 +34,8 @@ class ListNoteFragment : Fragment() {
   private lateinit var binding: FragmentListNoteBinding
   private val noteViewModel: NoteViewModel by viewModels()
   private val itemAdapter: ListAdapter = ListAdapter()
-  private var isBottomSheetShowing = false
   private var lisDeleteNote: MutableList<NoteModel> = mutableListOf()
+  private val shareViewModel: ShareViewModel by activityViewModels()
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -43,6 +50,22 @@ class ListNoteFragment : Fragment() {
     setupRecycleView()
     setupObserver()
     setupFloatBtn()
+  }
+
+  override fun onResume() {
+    setupDismissInput()
+    super.onResume()
+  }
+
+  private fun setupDismissInput() {
+    shareViewModel.share.observe(viewLifecycleOwner) {
+      if (it.title.isEmpty() && it.listSubNoteModel.isEmpty()) {
+        noteViewModel.deleteNoteById(it.idNote)
+        return@observe
+      }
+
+      noteViewModel.updateNote(it.title, it.idNote)
+    }
   }
 
   private fun setupObserver() {
@@ -66,36 +89,36 @@ class ListNoteFragment : Fragment() {
 
   private fun gotoInputDialog(
     data: NoteModel? = null,
-    isUpdateNote: Boolean = false
+    isUpdateNote: Boolean = false,
+    binding: ItemNoteBinding? = null
   ) {
-    val dialogFragment = InputDataFragment.newInstance(
-      data,
-      isUpdateNote
-    ).also {
-      it.setOnDisMissListener { list, id, title ->
-        isBottomSheetShowing = false
-
-        if (title.isEmpty() && list.isEmpty()) {
-          noteViewModel.deleteNoteById(id)
-          return@setOnDisMissListener
-        }
-
-        noteViewModel.updateNote(title, id)
-      }
+    val extras = binding?.container?.let {
+      it to BuildConfig.APPLICATION_ID
+    }?.let {
+      FragmentNavigatorExtras(
+        it
+      )
     }
 
-    val fragmentManager = childFragmentManager
-    dialogFragment.show(fragmentManager, dialogFragment::class.java.simpleName)
+    binding?.container?.transitionName = BuildConfig.APPLICATION_ID
+
+    val bundle = InputDataFragment.newInstance(
+      data,
+      isUpdateNote
+    )
+    findNavController().navigate(
+      resId = R.id.action_listNoteFragment_to_inputDataFragment,
+      args = bundle,
+      navOptions = null,
+      extras
+    )
   }
 
   private fun setupAdapter(list: ArrayList<NoteAndSubNoteModel>) {
     itemAdapter.run {
       submitList(list)
-      setOnClickItem {
-        if (isBottomSheetShowing) return@setOnClickItem
-
-        isBottomSheetShowing = true
-        gotoInputDialog(it.noteEntity, true)
+      setOnClickItem { data, binding ->
+        gotoInputDialog(data.noteEntity, true, binding)
       }
 
       setOnCheckItem { data, isChecked ->
@@ -126,7 +149,6 @@ class ListNoteFragment : Fragment() {
 
   private fun setupRecycleView() {
     binding.rv.run {
-      itemAnimator = null
       adapter = itemAdapter
       layoutManager = StaggeredGridLayoutManager(
         2,

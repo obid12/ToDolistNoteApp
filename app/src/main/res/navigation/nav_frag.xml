@@ -9,5 +9,20 @@
         android:id="@+id/listNoteFragment"
         android:name="com.obidia.testagrii.presentation.listnote.ListNoteFragment"
         android:label="fragment_list_note"
-        tools:layout="@layout/fragment_list_note" />
+        tools:layout="@layout/fragment_list_note" >
+        <action
+            android:id="@+id/action_listNoteFragment_to_inputDataFragment"
+            app:destination="@id/inputDataFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/inputDataFragment"
+        android:name="com.obidia.testagrii.presentation.inputdata.InputDataFragment"
+        android:label="InputDataFragment" >
+        <argument
+            android:name="data"
+            app:argType="com.obidia.testagrii.domain.model.NoteModel" />
+        <argument
+            android:name="isUpdate"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

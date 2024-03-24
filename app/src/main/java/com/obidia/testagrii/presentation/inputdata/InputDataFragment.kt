@@ -1,23 +1,24 @@
 package com.obidia.testagrii.presentation.inputdata
 
-import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.transition.TransitionInflater
 import com.obidia.testagrii.BuildConfig
 import com.obidia.testagrii.databinding.FragmentInputDataBinding
 import com.obidia.testagrii.domain.model.NoteModel
 import com.obidia.testagrii.domain.model.SubNoteModel
+import com.obidia.testagrii.event.DismissInputEvent
+import com.obidia.testagrii.presentation.share.ShareViewModel
 import com.obidia.testagrii.utils.error
 import com.obidia.testagrii.utils.loading
 import com.obidia.testagrii.utils.replaceIfNull
@@ -28,47 +29,16 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class InputDataFragment : BottomSheetDialogFragment() {
+class InputDataFragment : Fragment() {
 
   private val subNoteViewModel: SubNoteViewModel by viewModels()
+  private val shareViewModel: ShareViewModel by activityViewModels()
   private var _binding: FragmentInputDataBinding? = null
   private val binding get() = _binding!!
   private var subNoteAdapter: ListSubNotesAdapter = ListSubNotesAdapter()
-  private var onDisMissListener: ((
-    listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String
-  ) -> Unit)? = null
 
   @Inject
   lateinit var model: InputDataModel
-
-  override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-    val dialog = BottomSheetDialog(requireContext(), theme)
-    dialog.setShowDialog()
-    return dialog
-  }
-
-  fun setOnDisMissListener(listener: ((listSubNote: ArrayList<SubNoteModel>, idNote: Int, title: String) -> Unit)? = null) {
-    onDisMissListener = listener
-  }
-
-  private fun BottomSheetDialog.setShowDialog() {
-    this.setOnShowListener {
-      val bottomSheetDialog = it as BottomSheetDialog
-      val parentLayout =
-        bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-      parentLayout?.let { parent ->
-        val behaviour = BottomSheetBehavior.from(parent)
-        setupFullHeight(parent)
-        behaviour.state = BottomSheetBehavior.STATE_EXPANDED
-      }
-    }
-  }
-
-  private fun setupFullHeight(bottomSheet: View) {
-    val layoutParams = bottomSheet.layoutParams
-    layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT
-    bottomSheet.layoutParams = layoutParams
-  }
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -84,16 +54,6 @@ class InputDataFragment : BottomSheetDialogFragment() {
 
   private fun setIsUpdate() {
     subNoteViewModel.setIsUpdate(model.isUpdateNote, model.noteModel?.id.replaceIfNull())
-  }
-
-  override fun onDismiss(dialog: DialogInterface) {
-    super.onDismiss(dialog)
-    model.title = binding.etNoteTitle.text.toString()
-    setText(model.dataSubNoteModel)
-    model.listUpdate.forEach {
-      subNoteViewModel.updateSubNote(it)
-    }
-    onDisMissListener?.invoke(model.listSubNote, getNoteId(), model.title)
   }
 
   private fun setupObserver() {
@@ -139,9 +99,39 @@ class InputDataFragment : BottomSheetDialogFragment() {
   }
 
   private fun setupView() {
+    setupAnimation()
+    registerBackButton()
     setupRecycleView()
     adjustViewInput()
     setupInputSubNote()
+  }
+
+
+  private fun setupAnimation() {
+    sharedElementEnterTransition =
+      TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+    binding.container.transitionName = BuildConfig.APPLICATION_ID
+  }
+
+  private fun registerBackButton() {
+    activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() = back()
+    })
+  }
+
+  private fun back() {
+    model.title = binding.etNoteTitle.text.toString()
+    setText(model.dataSubNoteModel)
+    model.listUpdate.forEach {
+      subNoteViewModel.updateSubNote(it)
+    }
+
+    shareViewModel.saveShare(
+      DismissInputEvent(
+        model.listSubNote, getNoteId(), model.title
+      )
+    )
+    findNavController().popBackStack()
   }
 
   private fun setupInputSubNote() {
@@ -219,6 +209,19 @@ class InputDataFragment : BottomSheetDialogFragment() {
     }
   }
 
+//  override fun onStop() {
+//    super.onStop()
+//    model.title = binding.etNoteTitle.text.toString()
+//    setText(model.dataSubNoteModel)
+//    model.listUpdate.forEach {
+//      subNoteViewModel.updateSubNote(it)
+//    }
+////    onDisMissListener?.invoke(model.listSubNote, getNoteId(), model.title)
+//    shareViewModel.saveShare(DismissInputEvent(
+//      model.listSubNote, getNoteId(), model.title
+//    ))
+//  }
+
   private fun setupRecycleView() {
     binding.rvSubNote.run {
       adapter = subNoteAdapter
@@ -237,13 +240,13 @@ class InputDataFragment : BottomSheetDialogFragment() {
     fun newInstance(
       data: NoteModel? = null,
       isUpdateNote: Boolean = false
-    ): InputDataFragment {
+    ): Bundle {
       val dialog = InputDataFragment()
       val bundle = Bundle()
       bundle.putParcelable(ARGS_DATA_NOTE, data)
       bundle.putBoolean(ARGS_IS_UPDATE_NOTE, isUpdateNote)
       dialog.arguments = bundle
-      return dialog
+      return bundle
     }
   }
 }

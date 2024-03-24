@@ -106,6 +106,7 @@ class InputDataFragment : Fragment() {
     setupInputSubNote()
   }
 
+
   private fun setupAnimation() {
     sharedElementEnterTransition =
       TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)

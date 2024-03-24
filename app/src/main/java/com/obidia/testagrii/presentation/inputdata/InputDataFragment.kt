@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class InputDataFragment : BottomSheetDialogFragment() {
-
   private val subNoteViewModel: SubNoteViewModel by viewModels()
   private var _binding: FragmentInputDataBinding? = null
   private val binding get() = _binding!!
